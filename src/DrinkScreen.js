@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
 
-const DrinkScreen = ({ route }) => {
+const DrinkScreen = ({ route, navigation }) => {
   const { totalLiters, drinkingHours } = route.params;
   const [counter, setCounter] = useState(0);
   const [screenColor, setScreenColor] = useState('red');
@@ -21,6 +21,10 @@ const DrinkScreen = ({ route }) => {
     }
   };
 
+  const goBack = () => {
+    navigation.goBack();
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: screenColor }]}>
       <Text style={styles.text}>
@@ -33,11 +37,17 @@ const DrinkScreen = ({ route }) => {
         You have {drinkingTimeHours} hours and {drinkingTimeMinutes} minutes for each liter.
       </Text>
       <Text style={styles.text}>
-        Do not exceed 1 liter per hour.
+        Must be at least 1 litre per hour.
       </Text>
-      <View style={styles.buttonContainer}>
-        <Button title="1L" onPress={increaseCounter} disabled={counter >= totalLiters} />
-      </View>
+      {drinkingTimeHours < 1 ? (
+        <View style={styles.buttonContainer}>
+          <Button title="Go back" onPress={goBack} />
+        </View>
+      ) : (
+        <View style={styles.buttonContainer}>
+          <Button title="1L" onPress={increaseCounter} disabled={counter >= totalLiters} />
+        </View>
+      )}
       <Text style={styles.counterText}>Total Litres Drunk: {counter}</Text>
     </View>
   );
