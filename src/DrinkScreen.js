@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
 
 const DrinkScreen = ({ route }) => {
-  const { totalLiters, drinkingHours, drinkingTimeHours, drinkingTimeMinutes } = route.params;
+  const { totalLiters, drinkingHours } = route.params;
   const [counter, setCounter] = useState(0);
   const [screenColor, setScreenColor] = useState('red');
+  const drinkingTimePerLiter = Math.floor(drinkingHours * 60 / totalLiters);
+  const drinkingTimeHours = Math.floor(drinkingTimePerLiter / 60);
+  const drinkingTimeMinutes = drinkingTimePerLiter % 60;
 
   useEffect(() => {
     if (counter >= totalLiters) {
