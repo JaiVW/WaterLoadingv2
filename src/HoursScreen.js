@@ -1,36 +1,56 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
 
 const HoursScreen = ({ navigation, route }) => {
-  const [hours, setHours] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [drinkingHours, setDrinkingHours] = useState(0);
+
+  const calculateDrinkingHours = () => {
+    const start = new Date(`01/01/2000 ${startTime}`);
+    const end = new Date(`01/01/2000 ${endTime}`);
+
+    const diff = end - start;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+
+    setDrinkingHours(hours);
+  };
 
   const handleSubmit = () => {
-    // Perform validation and navigate to the last screen
-    const weight = route.params.weight;
-    const totalLiters = weight * 0.1;
-    const drinkingHours = parseFloat(hours);
-    const drinkingTimePerLiter = Math.floor((drinkingHours * 60) / totalLiters);
-    const drinkingTimeHours = Math.floor(drinkingTimePerLiter / 60);
-    const drinkingTimeMinutes = drinkingTimePerLiter % 60;
+    // Perform validation and navigate to the next screen
     navigation.navigate('DrinkScreen', {
-      weight,
-      totalLiters,
-      drinkingHours,
-      drinkingTimeHours,
-      drinkingTimeMinutes,
+      weight: route.params.weight,
+      drinkingHours: drinkingHours,
     });
   };
 
   return (
     <View style={styles.container}>
-      <TextInput
-        placeholder="Enter number of hours for drinking"
-        value={hours}
-        onChangeText={setHours}
-        keyboardType="numeric"
-        style={styles.input}
-      />
-      <Button title="Next" onPress={handleSubmit} />
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Drinking Start Time (24hr format):</Text>
+        <TextInput
+          placeholder="HH:MM"
+          value={startTime}
+          onChangeText={setStartTime}
+          keyboardType="numeric"
+          style={styles.input}
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Drinking End Time (24hr format):</Text>
+        <TextInput
+          placeholder="HH:MM"
+          value={endTime}
+          onChangeText={setEndTime}
+          keyboardType="numeric"
+          style={styles.input}
+        />
+      </View>
+      <Button title="Calculate Drinking Hours" onPress={calculateDrinkingHours} />
+      {drinkingHours > 0 && (
+        <Text style={styles.resultText}>You have {drinkingHours} drinking hours available.</Text>
+      )}
+      <Button title="Next" onPress={handleSubmit} disabled={drinkingHours === 0} />
     </View>
   );
 };
@@ -42,13 +62,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
   },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 18,
+    marginBottom: 8,
+  },
   input: {
-    width: '80%',
+    width: 200,
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
-    marginBottom: 20,
     paddingHorizontal: 10,
+  },
+  resultText: {
+    fontSize: 18,
+    marginTop: 20,
   },
 });
 

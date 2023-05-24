@@ -1,25 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-const DrinkScreen = ({ route }) => {
-  const { totalLiters, drinkingHours, drinkingTimeHours, drinkingTimeMinutes } = route.params;
-  const [counter, setCounter] = useState(0);
-  const [screenColor, setScreenColor] = useState('red');
+const DrinkScreen = ({ route, navigation }) => {
+  const { totalLiters, startTime, endTime } = route.params;
+  const [totalLitersDrunk, setTotalLitersDrunk] = useState(0);
 
-  useEffect(() => {
-    if (counter >= totalLiters) {
-      setScreenColor('green');
-    }
-  }, [counter, totalLiters]);
+  const start = parseInt(startTime);
+  const end = parseInt(endTime);
+  const drinkingHours = (end - start) % 24;
 
-  const increaseCounter = () => {
-    if (counter < totalLiters) {
-      setCounter(counter + 1);
+  const isEnoughTime = drinkingHours >= 1;
+
+  const handleButtonPress = () => {
+    if (isEnoughTime) {
+      setTotalLitersDrunk(totalLitersDrunk + 1);
     }
   };
 
+  const drinkingTimeHours = Math.floor(drinkingHours);
+  const drinkingTimeMinutes = Math.round((drinkingHours % 1) * 60);
+
   return (
-    <View style={[styles.container, { backgroundColor: screenColor }]}>
+    <View style={styles.container}>
       <Text style={styles.text}>
         You need to drink {totalLiters.toFixed(2)} liters per day.
       </Text>
@@ -29,13 +31,26 @@ const DrinkScreen = ({ route }) => {
       <Text style={styles.text}>
         You have {drinkingTimeHours} hours and {drinkingTimeMinutes} minutes for each liter.
       </Text>
-      <Text style={styles.text}>
-        Do not exceed 1 liter per hour.
-      </Text>
-      <View style={styles.buttonContainer}>
-        <Button title="1L" onPress={increaseCounter} disabled={counter >= totalLiters} />
+      {isEnoughTime ? (
+        <Text style={styles.text}>Do not exceed 1 litre per hour.</Text>
+      ) : (
+        <Text style={styles.text}>Not enough time for each litre, please adjust time.</Text>
+      )}
+
+      <View style={styles.circleButtonContainer}>
+        <TouchableOpacity
+          style={[styles.circleButton, !isEnoughTime && styles.disabledButton]}
+          disabled={!isEnoughTime}
+          onPress={handleButtonPress}
+        >
+          <Text style={styles.buttonText}>1L</Text>
+        </TouchableOpacity>
       </View>
-      <Text style={styles.counterText}>Total Litres Drunk: {counter}</Text>
+      <Text style={styles.counterText}>Total Liters Drunk: {totalLitersDrunk}</Text>
+
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.buttonText}>Go Back</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -43,28 +58,41 @@ const DrinkScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     padding: 16,
   },
   text: {
-    fontSize: 18,
     marginBottom: 10,
-    textAlign: 'center',
+    fontSize: 18,
   },
-  buttonContainer: {
+  circleButtonContainer: {
+    marginBottom: 20,
+  },
+  circleButton: {
     width: 100,
     height: 100,
     borderRadius: 50,
     backgroundColor: 'blue',
-    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    justifyContent: 'center',
+  },
+  disabledButton: {
+    backgroundColor: 'gray',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 20,
   },
   counterText: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 18,
+  },
+  backButton: {
     marginTop: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: 'blue',
+    borderRadius: 5,
   },
 });
 
