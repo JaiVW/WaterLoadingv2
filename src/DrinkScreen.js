@@ -1,32 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet, Button, Animated, Dimensions } from 'react-native';
 
 const DrinkScreen = ({ route, navigation }) => {
   const { totalLiters, drinkingHours } = route.params;
   const [counter, setCounter] = useState(0);
   const [screenColor, setScreenColor] = useState('red');
+  const [fillAnimation] = useState(new Animated.Value(0));
+
   const drinkingTimePerLiter = Math.floor(drinkingHours * 60 / totalLiters);
   const drinkingTimeHours = Math.floor(drinkingTimePerLiter / 60);
   const drinkingTimeMinutes = drinkingTimePerLiter % 60;
-
-  useEffect(() => {
-    if (counter >= totalLiters) {
-      setScreenColor('green');
-    }
-  }, [counter, totalLiters]);
+  const screenHeight = Dimensions.get('window').height;
 
   const increaseCounter = () => {
     if (counter < totalLiters) {
-      setCounter(counter + 1);
+      const newCounter = counter + 1;
+      const fillValue = newCounter / totalLiters;
+
+      setCounter(newCounter);
+
+      Animated.timing(fillAnimation, {
+        toValue: fillValue,
+        duration: 200, // Adjust the duration as needed
+        useNativeDriver: false,
+      }).start(() => {
+        if (newCounter >= totalLiters) {
+          setScreenColor('green');
+        }
+      });
     }
   };
+
+  const fillHeight = fillAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+    extrapolate: 'clamp',
+  });
 
   const goBack = () => {
     navigation.goBack();
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: screenColor }]}>
+    <View style={styles.container}>
+      <View style={styles.background}>
+        <Animated.View style={[styles.fill, { height: fillHeight }]} />
+      </View>
       <Text style={styles.text}>
         You need to drink {totalLiters.toFixed(2)} liters per day.
       </Text>
@@ -36,9 +55,7 @@ const DrinkScreen = ({ route, navigation }) => {
       <Text style={styles.text}>
         You have {drinkingTimeHours} hours and {drinkingTimeMinutes} minutes for each liter.
       </Text>
-      <Text style={styles.text}>
-        Must be at least 1 litre per hour.
-      </Text>
+      <Text style={styles.text}>Must be at least 1 liter per hour.</Text>
       {drinkingTimeHours < 1 ? (
         <View style={styles.buttonContainer}>
           <Button title="Go back" onPress={goBack} />
@@ -48,7 +65,7 @@ const DrinkScreen = ({ route, navigation }) => {
           <Button title="1L" onPress={increaseCounter} disabled={counter >= totalLiters} />
         </View>
       )}
-      <Text style={styles.counterText}>Total Litres Drunk: {counter}</Text>
+      <Text style={styles.counterText}>Total Liters Drunk: {counter}</Text>
     </View>
   );
 };
@@ -59,25 +76,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
+    backgroundColor: 'blue',
+  },
+  background: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'blue',
   },
   text: {
     fontSize: 18,
     marginBottom: 10,
     textAlign: 'center',
+    zIndex: 1,
   },
   buttonContainer: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'blue',
+    backgroundColor: 'lightgrey',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    zIndex: 1,
   },
   counterText: {
     fontSize: 20,
     fontWeight: 'bold',
     marginTop: 20,
+    zIndex: 1,
+  },
+  fill: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
   },
 });
 
