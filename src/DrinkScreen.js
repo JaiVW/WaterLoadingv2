@@ -41,6 +41,8 @@ const DrinkScreen = ({ route, navigation }) => {
     navigation.goBack();
   };
 
+  const litersLeft = totalLiters - counter;
+
   return (
     <View style={styles.container}>
       <View style={styles.background}>
@@ -66,6 +68,7 @@ const DrinkScreen = ({ route, navigation }) => {
         </View>
       )}
       <Text style={styles.counterText}>Total Liters Drunk: {counter}</Text>
+      <Text style={styles.counterText}>Litres Left: {litersLeft}</Text>
     </View>
   );
 };
