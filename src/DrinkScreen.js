@@ -1,31 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, Animated, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Button } from 'react-native';
+import Animated from 'react-native-reanimated';
+
 
 const DrinkScreen = ({ route, navigation }) => {
   const { totalLiters, drinkingHours } = route.params;
   const [counter, setCounter] = useState(0);
-  const [screenColor, setScreenColor] = useState('red');
+  const [fillColor, setFillColor] = useState('white');
   const [fillAnimation] = useState(new Animated.Value(0));
 
-  const drinkingTimePerLiter = Math.floor(drinkingHours * 60 / totalLiters);
+  const drinkingTimePerLiter = Math.floor((parseInt(drinkingHours.split(' ')[0]) || 0) * 60 / totalLiters);
   const drinkingTimeHours = Math.floor(drinkingTimePerLiter / 60);
   const drinkingTimeMinutes = drinkingTimePerLiter % 60;
-  const screenHeight = Dimensions.get('window').height;
 
   const increaseCounter = () => {
     if (counter < totalLiters) {
-      const newCounter = counter + 1;
+      const newCounter = Math.min(counter + 1, totalLiters);
       const fillValue = newCounter / totalLiters;
 
       setCounter(newCounter);
 
       Animated.timing(fillAnimation, {
         toValue: fillValue,
-        duration: 200, // Adjust the duration as needed
+        duration: 1000,
         useNativeDriver: false,
       }).start(() => {
         if (newCounter >= totalLiters) {
-          setScreenColor('green');
+          setFillColor('white');
         }
       });
     }
@@ -41,23 +42,22 @@ const DrinkScreen = ({ route, navigation }) => {
     navigation.goBack();
   };
 
-  const litersLeft = totalLiters - counter;
+  const litresLeft = totalLiters - counter;
+  const litresLeftText = litresLeft < 1 ? `${(litresLeft * 1000).toFixed(0)} milliliters left` : `${litresLeft.toFixed(2)} liters left`;
+
+  const totalLitresDrunkText = counter < 1 ? `${(counter * 1000).toFixed(0)} milliliters drunk` : `${counter.toFixed(2)} liters drunk`;
+
+  const drinkingTimeText =
+    !isNaN(drinkingTimeHours) && !isNaN(drinkingTimeMinutes)
+      ? `${drinkingTimeHours} hour(s) and ${drinkingTimeMinutes} minute(s) for each litre.`
+      : '';
 
   return (
     <View style={styles.container}>
-      <View style={styles.background}>
-        <Animated.View style={[styles.fill, { height: fillHeight }]} />
-      </View>
-      <Text style={styles.text}>
-        You need to drink {totalLiters.toFixed(2)} liters per day.
-      </Text>
-      <Text style={styles.text}>
-        You have a total of {drinkingHours} hours to do this.
-      </Text>
-      <Text style={styles.text}>
-        You have {drinkingTimeHours} hours and {drinkingTimeMinutes} minutes for each liter.
-      </Text>
-      <Text style={styles.text}>Must be at least 1 liter per hour.</Text>
+      <Animated.View style={[styles.fill, { height: fillHeight, backgroundColor: fillColor }]} />
+      <Text style={styles.text}>Drink {totalLiters.toFixed(2)} liters per day.</Text>
+      <Text style={styles.text}>{drinkingHours} hours to do this.</Text>
+      <Text style={styles.text}>{drinkingTimeText}</Text>
       {drinkingTimeHours < 1 ? (
         <View style={styles.buttonContainer}>
           <Button title="Go back" onPress={goBack} />
@@ -67,8 +67,8 @@ const DrinkScreen = ({ route, navigation }) => {
           <Button title="1L" onPress={increaseCounter} disabled={counter >= totalLiters} />
         </View>
       )}
-      <Text style={styles.counterText}>Total Liters Drunk: {counter}</Text>
-      <Text style={styles.counterText}>Litres Left: {litersLeft}</Text>
+      <Text style={styles.counterText}>{totalLitresDrunkText}</Text>
+      <Text style={styles.counterText}>{litresLeftText}</Text>
     </View>
   );
 };
@@ -79,14 +79,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: 'blue',
-  },
-  background: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
     backgroundColor: 'blue',
   },
   text: {
