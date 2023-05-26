@@ -21,30 +21,24 @@ const HoursScreen = ({ navigation, route }) => {
       return;
     }
 
-    const start = parseInt(startTime.replace(':', ''));
-    const end = parseInt(endTime.replace(':', ''));
+    const start = convertTimeToMinutes(startTime);
+    const end = convertTimeToMinutes(endTime);
 
-    let hours = 0;
-    let minutes = 0;
-
-    if (end > start) {
+    if (end >= start) {
       const diff = end - start;
-      hours = Math.floor(diff / 100);
-      minutes = diff % 100;
-    } else if (end < start) {
-      const diff = (2400 - start) + end;
-      hours = Math.floor(diff / 100);
-      minutes = diff % 100;
-
-      // Adjust minutes if it exceeds 59
-      if (minutes >= 60) {
-        hours += Math.floor(minutes / 60);
-        minutes %= 60;
-      }
+      const hours = Math.floor(diff / 60);
+      const minutes = diff % 60;
+      setDrinkingHours(`${hours} hour(s) and ${minutes} minute(s)`);
+      setShowNextButton(true);
+    } else {
+      setDrinkingHours('');
+      setShowNextButton(false);
     }
+  };
 
-    setDrinkingHours(`${hours} hour(s) and ${minutes} minute(s)`);
-    setShowNextButton(true);
+  const convertTimeToMinutes = (time) => {
+    const [hours, minutes] = time.split(':');
+    return parseInt(hours) * 60 + parseInt(minutes);
   };
 
   const handleSubmit = () => {
@@ -60,7 +54,7 @@ const HoursScreen = ({ navigation, route }) => {
   const validateDrinkingHours = () => {
     const litersPerHour = totalLiters / parseFloat(drinkingHours);
     if (isNaN(litersPerHour) || litersPerHour > 1) {
-      return "It is unsafe to drink more than 1L per hour. Please add more hours to your drinking schedule.";
+      return "It is unsafe to drink more than 1 litre per hour. Please add more hours to your drinking schedule.";
     }
     return null;
   };

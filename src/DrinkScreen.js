@@ -59,6 +59,12 @@ const DrinkScreen = ({ route, navigation }) => {
     }
   };
 
+  const calculateTimePerLiter = () => {
+    const timeHours = Math.floor(drinkingTimePerLiter / 60);
+    const timeMinutes = drinkingTimePerLiter % 60;
+    return `${timeHours} hour${timeHours !== 1 ? 's' : ''} and ${timeMinutes} minute${timeMinutes !== 1 ? 's' : ''}`;
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.background}>
@@ -71,7 +77,7 @@ const DrinkScreen = ({ route, navigation }) => {
         You have a total of {drinkingHours} hours to do this.
       </Text>
       <Text style={styles.text}>
-        You have {drinkingTimeHours} hour{drinkingTimeHours !== 1 ? 's' : ''} and {drinkingTimeMinutes} minute{drinkingTimeMinutes !== 1 ? 's' : ''} for each liter.
+        You have {calculateTimePerLiter()} for each liter.
       </Text>
       <Text style={styles.text}>Do not exceed 1 liter per hour.</Text>
       {drinkingTimeHours < 1 ? (
