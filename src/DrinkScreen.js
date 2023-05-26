@@ -7,7 +7,7 @@ const { height } = Dimensions.get('window');
 const DrinkScreen = ({ route, navigation }) => {
   const { totalLiters, drinkingHours } = route.params;
   const [counter, setCounter] = useState(0);
-  const [fillColor, setFillColor] = useState('white');
+  const [fillColor, setFillColor] = useState('transparent');
   const fillAnimation = useSharedValue(0);
 
   const config = {
@@ -30,19 +30,16 @@ const DrinkScreen = ({ route, navigation }) => {
       if (newCounter >= totalLiters) {
         setFillColor('white');
       }
-
-      const animatedHeight = height * fillValue;
-      const remainingHeight = height - animatedHeight;
-      fillStyle.transform = [{ translateY: remainingHeight }];
     }
   };
 
   const fillStyle = useAnimatedStyle(() => {
-    const animatedHeight = height * fillAnimation.value;
+    const animatedHeight = (fillAnimation.value * height) + (height * (1 - fillAnimation.value));
 
     return {
       height: animatedHeight,
       backgroundColor: fillColor,
+      transform: [{ translateY: animatedHeight }],
     };
   });
 
@@ -62,7 +59,7 @@ const DrinkScreen = ({ route, navigation }) => {
 
   const drinkingTimePerLiterText =
     !isNaN(drinkingTimeHours) && !isNaN(drinkingTimeMinutes)
-      ? `${drinkingTimeHours}hrs${drinkingTimeMinutes} for each litre`
+      ? `${drinkingTimeHours}hrs${drinkingTimeMinutes} for each liter`
       : '';
 
   return (
