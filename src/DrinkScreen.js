@@ -7,9 +7,9 @@ const DrinkScreen = ({ route, navigation }) => {
   const [screenColor, setScreenColor] = useState('red');
   const [fillAnimation] = useState(new Animated.Value(0));
 
-  const drinkingTimePerLiter = drinkingHours !== 0 ? Math.floor((drinkingHours * 60) / totalLiters) : 0;
+  const drinkingTimePerLiter = totalLiters !== 0 ? Math.floor((drinkingHours * 60) / totalLiters) : 0;
   const drinkingTimeHours = Math.floor(drinkingTimePerLiter / 60);
-  const drinkingTimeMinutes = drinkingTimePerLiter % 60;
+  const drinkingTimeMinutes = Math.ceil(drinkingTimePerLiter % 60); // Round up minutes if they become decimals
   const screenHeight = Dimensions.get('window').height;
 
   const increaseCounter = () => {
@@ -60,9 +60,7 @@ const DrinkScreen = ({ route, navigation }) => {
   };
 
   const calculateTimePerLiter = () => {
-    const timeHours = Math.floor(drinkingTimePerLiter / 60);
-    const timeMinutes = drinkingTimePerLiter % 60;
-    return `${timeHours} hour${timeHours !== 1 ? 's' : ''} and ${timeMinutes} minute${timeMinutes !== 1 ? 's' : ''}`;
+    return `${drinkingTimeHours} hour${drinkingTimeHours !== 1 ? 's' : ''} and ${drinkingTimeMinutes} minute${drinkingTimeMinutes !== 1 ? 's' : ''}`;
   };
 
   return (
