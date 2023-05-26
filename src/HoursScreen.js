@@ -4,7 +4,7 @@ import { View, TextInput, Button, Text, StyleSheet, Keyboard, TouchableWithoutFe
 const HoursScreen = ({ navigation, route }) => {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
-  const [drinkingHours, setDrinkingHours] = useState(0);
+  const [drinkingHours, setDrinkingHours] = useState('');
   const [showNextButton, setShowNextButton] = useState(false);
   const [hasError, setHasError] = useState(false);
   const weight = route.params.weight;
@@ -58,8 +58,8 @@ const HoursScreen = ({ navigation, route }) => {
   };
 
   const validateDrinkingHours = () => {
-    const litersPerHour = totalLiters / drinkingHours;
-    if (litersPerHour > 1) {
+    const litersPerHour = totalLiters / parseFloat(drinkingHours);
+    if (isNaN(litersPerHour) || litersPerHour > 1) {
       return "It is unsafe to drink more than 1L per hour. Please add more hours to your drinking schedule.";
     }
     return null;
@@ -74,9 +74,10 @@ const HoursScreen = ({ navigation, route }) => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <Text style={styles.title}>Drinking Schedule</Text>
-        {validateDrinkingHours() && (
+        {hasError && (
           <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{validateDrinkingHours()}</Text>
+            <Text style={styles.errorText}>It is unsafe to drink more than 1 litre per hour.</Text>
+            <Text style={styles.errorText}>Please add more hours to your schedule.</Text>
           </View>
         )}
         <View style={styles.inputContainer}>
@@ -115,9 +116,9 @@ const HoursScreen = ({ navigation, route }) => {
             maxLength={5}
           />
         </View>
-        <View style={styles.hoursTextContainer}>
-          <Text style={styles.hoursText}>You have {drinkingHours} hours</Text>
-        </View>
+        {drinkingHours.length > 0 && (
+          <Text style={styles.hoursText}>You have {drinkingHours}</Text>
+        )}
         <View style={styles.nextButtonContainer}>
           <Button title="Next" onPress={handleSubmit} disabled={!showNextButton || hasError} />
         </View>
@@ -152,11 +153,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 10,
   },
-  hoursTextContainer: {
-    marginBottom: 20,
-  },
   hoursText: {
     fontSize: 18,
+    marginBottom: 20,
   },
   errorContainer: {
     marginBottom: 20,

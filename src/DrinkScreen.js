@@ -1,73 +1,79 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Button, Dimensions } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-
-const { height } = Dimensions.get('window');
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Button, Animated, Dimensions } from 'react-native';
 
 const DrinkScreen = ({ route, navigation }) => {
   const { totalLiters, drinkingHours } = route.params;
   const [counter, setCounter] = useState(0);
-  const [fillColor, setFillColor] = useState('transparent');
-  const fillAnimation = useSharedValue(0);
+  const [screenColor, setScreenColor] = useState('red');
+  const [fillAnimation] = useState(new Animated.Value(0));
 
-  const config = {
-    duration: 1000,
-  };
-
-  const drinkingTimePerLiter = Math.floor((parseInt(drinkingHours.split(' ')[0]) || 0) * 60 / totalLiters);
+  const drinkingTimePerLiter = drinkingHours !== 0 ? Math.floor((drinkingHours * 60) / totalLiters) : 0;
   const drinkingTimeHours = Math.floor(drinkingTimePerLiter / 60);
   const drinkingTimeMinutes = drinkingTimePerLiter % 60;
+  const screenHeight = Dimensions.get('window').height;
 
   const increaseCounter = () => {
     if (counter < totalLiters) {
-      const newCounter = Math.min(counter + 1, totalLiters);
+      const newCounter = counter + 1;
       const fillValue = newCounter / totalLiters;
 
       setCounter(newCounter);
 
-      fillAnimation.value = withTiming(fillValue, config);
-
-      if (newCounter >= totalLiters) {
-        setFillColor('white');
-      }
+      Animated.timing(fillAnimation, {
+        toValue: fillValue,
+        duration: 1000, // Adjust the duration as needed
+        useNativeDriver: false,
+      }).start(() => {
+        if (newCounter >= totalLiters) {
+          setScreenColor('green');
+        }
+      });
     }
   };
 
-  const fillStyle = useAnimatedStyle(() => {
-    const animatedHeight = (fillAnimation.value * height) + (height * (1 - fillAnimation.value));
-
-    return {
-      height: animatedHeight,
-      backgroundColor: fillColor,
-      transform: [{ translateY: animatedHeight }],
-    };
+  const fillHeight = fillAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+    extrapolate: 'clamp',
   });
 
   const goBack = () => {
     navigation.goBack();
   };
 
-  const litresLeft = totalLiters - counter;
-  const litresLeftText = litresLeft < 1 ? `${(litresLeft * 1000).toFixed(0)} milliliters left` : `${litresLeft.toFixed(2)} liters left`;
+  const calculateLitersLeft = () => {
+    const litersLeft = totalLiters - counter;
+    if (litersLeft >= 1) {
+      return litersLeft.toFixed(2);
+    } else {
+      const millilitersLeft = (litersLeft * 1000).toFixed(0);
+      return Math.max(0, millilitersLeft) + 'ml';
+    }
+  };
 
-  const totalLitresDrunkText = counter < 1 ? `${(counter * 1000).toFixed(0)} milliliters drunk` : `${counter.toFixed(2)} liters drunk`;
-
-  const drinkingTimeText =
-    !isNaN(drinkingTimeHours) && !isNaN(drinkingTimeMinutes)
-      ? `${drinkingTimeHours}hrs${drinkingTimeMinutes} to do this`
-      : '';
-
-  const drinkingTimePerLiterText =
-    !isNaN(drinkingTimeHours) && !isNaN(drinkingTimeMinutes)
-      ? `${drinkingTimeHours}hrs${drinkingTimeMinutes} for each liter`
-      : '';
+  const calculateLitersDrunk = () => {
+    if (counter < totalLiters) {
+      return counter.toFixed(2);
+    } else {
+      return totalLiters.toFixed(2);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.fill, fillStyle]} />
-      <Text style={styles.text}>Drink {totalLiters.toFixed(2)} liters per day.</Text>
-      <Text style={styles.text}>{drinkingHours} hours to do this.</Text>
-      <Text style={styles.text}>{drinkingTimePerLiterText}</Text>
+      <View style={styles.background}>
+        <Animated.View style={[styles.fill, { height: fillHeight }]} />
+      </View>
+      <Text style={styles.text}>
+        You need to drink {totalLiters.toFixed(2)} liters per day.
+      </Text>
+      <Text style={styles.text}>
+        You have a total of {drinkingHours} hours to do this.
+      </Text>
+      <Text style={styles.text}>
+        You have {drinkingTimeHours} hour{drinkingTimeHours !== 1 ? 's' : ''} and {drinkingTimeMinutes} minute{drinkingTimeMinutes !== 1 ? 's' : ''} for each liter.
+      </Text>
+      <Text style={styles.text}>Do not exceed 1 liter per hour.</Text>
       {drinkingTimeHours < 1 ? (
         <View style={styles.buttonContainer}>
           <Button title="Go back" onPress={goBack} />
@@ -77,8 +83,8 @@ const DrinkScreen = ({ route, navigation }) => {
           <Button title="1L" onPress={increaseCounter} disabled={counter >= totalLiters} />
         </View>
       )}
-      <Text style={styles.counterText}>{totalLitresDrunkText}</Text>
-      <Text style={styles.counterText}>{litresLeftText}</Text>
+      <Text style={styles.counterText}>Total Liters Drunk: {calculateLitersDrunk()} L</Text>
+      <Text style={styles.counterText}>Liters Left: {calculateLitersLeft()} L</Text>
     </View>
   );
 };
@@ -86,9 +92,17 @@ const DrinkScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    height: height,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 16,
+    backgroundColor: 'blue',
+  },
+  background: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: 'blue',
   },
   text: {
