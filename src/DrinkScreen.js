@@ -26,10 +26,14 @@ const DrinkScreen = ({ route, navigation }) => {
       setCounter(newCounter);
 
       fillAnimation.value = withTiming(fillValue, config);
-      
+
       if (newCounter >= totalLiters) {
         setFillColor('white');
       }
+
+      const animatedHeight = height * fillValue;
+      const remainingHeight = height - animatedHeight;
+      fillStyle.transform = [{ translateY: remainingHeight }];
     }
   };
 
@@ -53,7 +57,12 @@ const DrinkScreen = ({ route, navigation }) => {
 
   const drinkingTimeText =
     !isNaN(drinkingTimeHours) && !isNaN(drinkingTimeMinutes)
-      ? `${drinkingTimeHours} hour(s) and ${drinkingTimeMinutes} minute(s) for each litre.`
+      ? `${drinkingTimeHours}hrs${drinkingTimeMinutes} to do this`
+      : '';
+
+  const drinkingTimePerLiterText =
+    !isNaN(drinkingTimeHours) && !isNaN(drinkingTimeMinutes)
+      ? `${drinkingTimeHours}hrs${drinkingTimeMinutes} for each litre`
       : '';
 
   return (
@@ -61,7 +70,7 @@ const DrinkScreen = ({ route, navigation }) => {
       <Animated.View style={[styles.fill, fillStyle]} />
       <Text style={styles.text}>Drink {totalLiters.toFixed(2)} liters per day.</Text>
       <Text style={styles.text}>{drinkingHours} hours to do this.</Text>
-      <Text style={styles.text}>{drinkingTimeText}</Text>
+      <Text style={styles.text}>{drinkingTimePerLiterText}</Text>
       {drinkingTimeHours < 1 ? (
         <View style={styles.buttonContainer}>
           <Button title="Go back" onPress={goBack} />
