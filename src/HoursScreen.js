@@ -1,123 +1,89 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, Button, Animated, Dimensions } from 'react-native';
 
-const HoursScreen = ({ navigation, route }) => {
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
-  const [drinkingHours, setDrinkingHours] = useState('');
-  const [showNextButton, setShowNextButton] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const weight = route.params.weight;
-  const totalLiters = weight * 0.1; // Calculate total liters based on weight
+const DrinkScreen = ({ route, navigation }) => {
+  const { totalLiters, drinkingHoursInMinutes } = route.params;
+  const [counter, setCounter] = useState(0);
+  const [screenColor, setScreenColor] = useState('red');
+  const [fillAnimation] = useState(new Animated.Value(0));
 
-  useEffect(() => {
-    calculateDrinkingHours();
-  }, [startTime, endTime]);
+  const drinkingTimePerLiterMinutes = totalLiters !== 0 ? drinkingHoursInMinutes / totalLiters : 0;
+  const timePerLiterHours = Math.floor(drinkingTimePerLiterMinutes / 60);
+  const timePerLiterMinutes = drinkingTimePerLiterMinutes % 60;
 
-  const calculateDrinkingHours = () => {
-    if (startTime.length !== 5 || endTime.length !== 5) {
-      // Exit early if the start or finish time is not complete
-      setShowNextButton(false);
-      return;
+  const screenHeight = Dimensions.get('window').height;
+
+  const increaseCounter = () => {
+    if (counter < totalLiters) {
+      const newCounter = counter + 1;
+      const fillValue = newCounter / totalLiters;
+
+      setCounter(newCounter);
+
+      Animated.timing(fillAnimation, {
+        toValue: fillValue,
+        duration: 1000, // Adjust the duration as needed
+        useNativeDriver: false,
+      }).start(() => {
+        if (newCounter >= totalLiters) {
+          setScreenColor('green');
+        }
+      });
     }
+  };
 
-    const start = convertTimeToMinutes(startTime);
-    const end = convertTimeToMinutes(endTime);
+  const fillHeight = fillAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+    extrapolate: 'clamp',
+  });
 
-    if (end >= start) {
-      const diff = end - start;
-      const hours = Math.floor(diff / 60);
-      const minutes = diff % 60;
-      setDrinkingHours(`${hours} hour(s) and ${minutes} minute(s)`);
-      setShowNextButton(true);
+  const goBack = () => {
+    navigation.goBack();
+  };
+
+  const calculateLitersLeft = () => {
+    const litersLeft = totalLiters - counter;
+    if (litersLeft >= 1) {
+      return litersLeft.toFixed(2);
     } else {
-      setDrinkingHours('');
-      setShowNextButton(false);
+      const millilitersLeft = (litersLeft * 1000).toFixed(0);
+      return Math.max(0, millilitersLeft) + 'ml';
     }
   };
 
-  const convertTimeToMinutes = (time) => {
-    const [hours, minutes] = time.split(':');
-    return parseInt(hours) * 60 + parseInt(minutes);
-  };
-
-  const handleSubmit = () => {
-    Keyboard.dismiss(); // Dismiss the keyboard
-    // Handle data or perform additional processing as needed
-    navigation.navigate('DrinkScreen', {
-      weight: route.params.weight,
-      totalLiters: totalLiters,
-      drinkingHours: drinkingHours,
-    });
-  };
-
-  const validateDrinkingHours = () => {
-    const litersPerHour = totalLiters / parseFloat(drinkingHours);
-    if (isNaN(litersPerHour) || litersPerHour > 1) {
-      return "It is unsafe to drink more than 1 litre per hour. Please add more hours to your drinking schedule.";
+  const calculateLitersDrunk = () => {
+    if (counter < totalLiters) {
+      return counter.toFixed(2);
+    } else {
+      return totalLiters.toFixed(2);
     }
-    return null;
   };
-
-  useEffect(() => {
-    const error = validateDrinkingHours();
-    setHasError(!!error);
-  }, [drinkingHours]);
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Drinking Schedule</Text>
-        {hasError && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>It is unsafe to drink more than 1 litre per hour.</Text>
-            <Text style={styles.errorText}>Please add more hours to your schedule.</Text>
-          </View>
-        )}
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Drinking Start Time (24hr format):</Text>
-          <TextInput
-            placeholder="HH:MM"
-            value={startTime}
-            onChangeText={(text) => {
-              if (text.length <= 5) {
-                if (text.length === 2 && startTime.length === 1) {
-                  text += ':';
-                }
-                setStartTime(text);
-              }
-            }}
-            keyboardType="numeric"
-            style={styles.input}
-            maxLength={5}
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Drinking End Time (24hr format):</Text>
-          <TextInput
-            placeholder="HH:MM"
-            value={endTime}
-            onChangeText={(text) => {
-              if (text.length <= 5) {
-                if (text.length === 2 && endTime.length === 1) {
-                  text += ':';
-                }
-                setEndTime(text);
-              }
-            }}
-            keyboardType="numeric"
-            style={styles.input}
-            maxLength={5}
-          />
-        </View>
-        {drinkingHours.length > 0 && (
-          <Text style={styles.hoursText}>You have {drinkingHours}</Text>
-        )}
-        <View style={styles.nextButtonContainer}>
-          <Button title="Next" onPress={handleSubmit} disabled={!showNextButton || hasError} />
-        </View>
+    <View style={styles.container}>
+      <View style={styles.background}>
+        <Animated.View style={[styles.fill, { height: fillHeight }]} />
       </View>
-    </TouchableWithoutFeedback>
+      <Text style={styles.text}>
+        You need to drink {totalLiters.toFixed(2)} liters per day.
+      </Text>
+      <Text style={styles.text}>
+        You have a total of {timePerLiterHours} hour(s) and {timePerLiterMinutes} minute(s) for each liter.
+      </Text>
+      <Text style={styles.text}>Do not exceed 1 liter per hour.</Text>
+      {timePerLiterHours < 1 ? (
+        <View style={styles.buttonContainer}>
+          <Button title="Go back" onPress={goBack} />
+        </View>
+      ) : (
+        <View style={styles.buttonContainer}>
+          <Button title="1L" onPress={increaseCounter} disabled={counter >= totalLiters} />
+        </View>
+      )}
+      <Text style={styles.counterText}>Total Liters Drunk: {calculateLitersDrunk()} L</Text>
+      <Text style={styles.counterText}>Liters Left: {calculateLitersLeft()} L</Text>
+    </View>
   );
 };
 

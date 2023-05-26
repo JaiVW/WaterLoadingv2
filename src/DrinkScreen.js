@@ -7,9 +7,10 @@ const DrinkScreen = ({ route, navigation }) => {
   const [screenColor, setScreenColor] = useState('red');
   const [fillAnimation] = useState(new Animated.Value(0));
 
-  const drinkingTimePerLiter = totalLiters !== 0 ? Math.floor((drinkingHours * 60) / totalLiters) : 0;
-  const drinkingTimeHours = Math.floor(drinkingTimePerLiter / 60);
-  const drinkingTimeMinutes = Math.ceil(drinkingTimePerLiter % 60); // Round up minutes if they become decimals
+  const drinkingTimePerLiterMinutes = totalLiters !== 0 ? Math.floor((drinkingHours * 60) / totalLiters) : 0;
+  const timePerLiterHours = Math.floor(drinkingTimePerLiterMinutes / 60);
+  const timePerLiterMinutes = drinkingTimePerLiterMinutes % 60;
+
   const screenHeight = Dimensions.get('window').height;
 
   const increaseCounter = () => {
@@ -59,10 +60,6 @@ const DrinkScreen = ({ route, navigation }) => {
     }
   };
 
-  const calculateTimePerLiter = () => {
-    return `${drinkingTimeHours} hour${drinkingTimeHours !== 1 ? 's' : ''} and ${drinkingTimeMinutes} minute${drinkingTimeMinutes !== 1 ? 's' : ''}`;
-  };
-
   return (
     <View style={styles.container}>
       <View style={styles.background}>
@@ -75,10 +72,10 @@ const DrinkScreen = ({ route, navigation }) => {
         You have a total of {drinkingHours} hours to do this.
       </Text>
       <Text style={styles.text}>
-        You have {calculateTimePerLiter()} for each liter.
+        It will take approximately {timePerLiterHours} hour(s) and {timePerLiterMinutes} minute(s) to drink one liter.
       </Text>
       <Text style={styles.text}>Do not exceed 1 liter per hour.</Text>
-      {drinkingTimeHours < 1 ? (
+      {timePerLiterHours < 1 ? (
         <View style={styles.buttonContainer}>
           <Button title="Go back" onPress={goBack} />
         </View>
