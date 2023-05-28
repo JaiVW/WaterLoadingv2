@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Animated, Dimensions } from 'react-native';
 
 const DrinkScreen = ({ route, navigation }) => {
-  const { totalLiters, drinkingHours } = route.params;
+  const { totalLiters, drinkingHoursInMinutes } = route.params;
+
   const [counter, setCounter] = useState(0);
   const [screenColor, setScreenColor] = useState('red');
   const [fillAnimation] = useState(new Animated.Value(0));
 
-  const drinkingTimePerLiterMinutes = totalLiters !== 0 ? Math.floor((drinkingHours * 60) / totalLiters) : 0;
+  const totalHours = Math.floor(drinkingHoursInMinutes / 60);
+  const drinkingTimePerLiterMinutes = totalLiters !== 0 ? Math.floor(drinkingHoursInMinutes / totalLiters) : 0;
   const timePerLiterHours = Math.floor(drinkingTimePerLiterMinutes / 60);
   const timePerLiterMinutes = drinkingTimePerLiterMinutes % 60;
 
@@ -69,7 +71,7 @@ const DrinkScreen = ({ route, navigation }) => {
         You need to drink {totalLiters.toFixed(2)} liters per day.
       </Text>
       <Text style={styles.text}>
-        You have a total of {drinkingHours} hours to do this.
+        You have a total of {totalHours} hours to do this.
       </Text>
       <Text style={styles.text}>
         It will take approximately {timePerLiterHours} hour(s) and {timePerLiterMinutes} minute(s) to drink one liter.
