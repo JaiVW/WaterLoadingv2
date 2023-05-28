@@ -7,6 +7,9 @@ const DrinkScreen = ({ route, navigation }) => {
   const [counter, setCounter] = useState(0);
   const [screenColor, setScreenColor] = useState('red');
   const [fillAnimation] = useState(new Animated.Value(0));
+  const [showHalfwayMessage, setShowHalfwayMessage] = useState(false);
+  const [showLastOneMessage, setShowLastOneMessage] = useState(false);
+  const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
 
   const totalHours = Math.floor(drinkingHoursInMinutes / 60);
   const drinkingTimePerLiterMinutes = totalLiters !== 0 ? Math.floor(drinkingHoursInMinutes / totalLiters) : 0;
@@ -29,6 +32,16 @@ const DrinkScreen = ({ route, navigation }) => {
       }).start(() => {
         if (newCounter >= totalLiters) {
           setScreenColor('green');
+          setShowAllDoneMessage(true);
+        } else if (newCounter === Math.floor(totalLiters * 0.95)) {
+          setShowLastOneMessage(true);
+          setTimeout(() => setShowLastOneMessage(false), 3000); // Show the message for 3 seconds
+        } else if (newCounter === Math.floor(totalLiters * 0.55)) {
+          setShowHalfwayMessage(true);
+          setTimeout(() => setShowHalfwayMessage(false), 3000); // Show the message for 3 seconds
+        } else if (newCounter === totalLiters) {
+          setShowAllDoneMessage(true);
+          setTimeout(() => setShowAllDoneMessage(false), 3000); // Show the message for 3 seconds
         }
       });
     }
@@ -47,7 +60,7 @@ const DrinkScreen = ({ route, navigation }) => {
   const calculateLitersLeft = () => {
     const litersLeft = totalLiters - counter;
     if (litersLeft >= 1) {
-      return litersLeft.toFixed(2);
+      return litersLeft.toFixed(2) + ' L';
     } else {
       const millilitersLeft = (litersLeft * 1000).toFixed(0);
       return Math.max(0, millilitersLeft) + 'ml';
@@ -87,7 +100,25 @@ const DrinkScreen = ({ route, navigation }) => {
         </View>
       )}
       <Text style={styles.counterText}>Total Liters Drunk: {calculateLitersDrunk()} L</Text>
-      <Text style={styles.counterText}>Liters Left: {calculateLitersLeft()} L</Text>
+      <Text style={styles.counterText}>Liters Left: {calculateLitersLeft()} </Text>
+
+      {showHalfwayMessage && (
+        <View style={styles.messageContainer}>
+          <Text style={styles.messageText}>Halfway there!</Text>
+        </View>
+      )}
+
+      {showLastOneMessage && (
+        <View style={styles.messageContainer}>
+          <Text style={styles.messageText}>One more to go!</Text>
+        </View>
+      )}
+
+      {showAllDoneMessage && (
+        <View style={styles.messageContainer}>
+          <Text style={styles.messageText}>You're finished. Well done!</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -136,6 +167,19 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: 'white',
+  },
+  messageContainer: {
+    position: 'absolute',
+    top: 100,
+    backgroundColor: 'lightgreen',
+    padding: 16,
+    borderRadius: 8,
+    elevation: 5,
+  },
+  messageText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
 });
 

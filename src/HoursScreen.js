@@ -99,9 +99,9 @@ const HoursScreen = ({ navigation, route }) => {
         </View>
       </View>
       <View style={styles.nextButtonContainer}>
-        <Text style={styles.chosenHoursText}>Drinking Time: {formatTime(drinkingTime)}</Text>
+        <Text style={styles.chosenHoursText}>{formatTime(drinkingTime)}</Text>
         <Text style={styles.errorText}>{errorMessage}</Text>
-        <Text style={styles.totalLitersText}>Total Liters: {totalLiters.toFixed(2)}</Text>
+        <Text style={styles.totalLitersText}>To drink {totalLiters.toFixed(2)} litres.</Text>
         <Button
           title="Next"
           onPress={handleSubmit}
