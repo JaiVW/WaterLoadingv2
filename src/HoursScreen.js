@@ -55,7 +55,7 @@ const HoursScreen = ({ navigation, route }) => {
       });
     }
   };
-
+  
   const dismissKeyboard = () => {
     Keyboard.dismiss();
   };
