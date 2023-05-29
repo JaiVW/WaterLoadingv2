@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Button, Animated, Dimensions } from 'react-nati
 
 const DrinkScreen = ({ route, navigation }) => {
   const { totalLiters, drinkingHoursInMinutes } = route.params;
-
+  
   const [counter, setCounter] = useState(0);
   const [screenColor, setScreenColor] = useState('red');
   const [fillAnimation] = useState(new Animated.Value(0));
@@ -12,6 +12,7 @@ const DrinkScreen = ({ route, navigation }) => {
   const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
 
   const totalHours = Math.floor(drinkingHoursInMinutes / 60);
+  const totalMinutes = drinkingHoursInMinutes % 60;
   const drinkingTimePerLiterMinutes = totalLiters !== 0 ? Math.floor(drinkingHoursInMinutes / totalLiters) : 0;
   const timePerLiterHours = Math.floor(drinkingTimePerLiterMinutes / 60);
   const timePerLiterMinutes = drinkingTimePerLiterMinutes % 60;
@@ -84,7 +85,7 @@ const DrinkScreen = ({ route, navigation }) => {
         You need to drink {totalLiters.toFixed(2)} liters per day.
       </Text>
       <Text style={styles.text}>
-        You have a total of {totalHours} hours to do this.
+        You have a total of {totalHours} hour(s) and {totalMinutes} minute(s) to do this.
       </Text>
       <Text style={styles.text}>
         It will take approximately {timePerLiterHours} hour(s) and {timePerLiterMinutes} minute(s) to drink one liter.
@@ -110,7 +111,7 @@ const DrinkScreen = ({ route, navigation }) => {
 
       {showLastOneMessage && (
         <View style={styles.messageContainer}>
-          <Text style={styles.messageText}>One more to go!</Text>
+          <Text style={styles.messageText}>Last few sips!</Text>
         </View>
       )}
 

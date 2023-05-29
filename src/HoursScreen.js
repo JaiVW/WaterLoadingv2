@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 const HoursScreen = ({ navigation, route }) => {
   const [startTime, setStartTime] = useState('');
@@ -50,65 +50,73 @@ const HoursScreen = ({ navigation, route }) => {
       navigation.navigate('DrinkScreen', {
         totalLiters: totalLiters,
         drinkingHoursInMinutes: drinkingTime,
+        startTime: startTime,
+        endTime: endTime,
       });
     }
   };
 
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Drinking Schedule</Text>
-      <Text style={[styles.errorText, { color: 'red' }]}>It is unsafe to exceed 1 liter per hour!</Text>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Drinking Start Time (24hr format):</Text>
-        <View style={styles.inputBox}>
-          <TextInput
-            placeholder="HH:MM"
-            value={startTime}
-            onChangeText={(text) => {
-              if (text.length <= 5) {
-                if (text.length === 2 && startTime.length === 1) {
-                  text += ':';
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Drinking Schedule</Text>
+        <Text style={[styles.errorText, { color: 'red' }]}>It is unsafe to exceed 1 liter per hour!</Text>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Drinking Start Time (24hr format):</Text>
+          <View style={styles.inputBox}>
+            <TextInput
+              placeholder="HH:MM"
+              value={startTime}
+              onChangeText={(text) => {
+                if (text.length <= 5) {
+                  if (text.length === 2 && startTime.length === 1) {
+                    text += ':';
+                  }
+                  setStartTime(text);
                 }
-                setStartTime(text);
-              }
-            }}
-            keyboardType="numeric"
-            style={styles.input}
-            maxLength={5}
+              }}
+              keyboardType="numeric"
+              style={styles.input}
+              maxLength={5}
+            />
+          </View>
+        </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Drinking End Time (24hr format):</Text>
+          <View style={styles.inputBox}>
+            <TextInput
+              placeholder="HH:MM"
+              value={endTime}
+              onChangeText={(text) => {
+                if (text.length <= 5) {
+                  if (text.length === 2 && endTime.length === 1) {
+                    text += ':';
+                  }
+                  setEndTime(text);
+                }
+              }}
+              keyboardType="numeric"
+              style={styles.input}
+              maxLength={5}
+            />
+          </View>
+        </View>
+        <View style={styles.nextButtonContainer}>
+          <Text style={styles.chosenHoursText}>{formatTime(drinkingTime)}</Text>
+          <Text style={styles.errorText}>{errorMessage}</Text>
+          <Text style={styles.totalLitersText}>To drink {totalLiters.toFixed(2)} litres.</Text>
+          <Button
+            title="Next"
+            onPress={handleSubmit}
+            disabled={drinkingTime < totalLiters * 60}
           />
         </View>
       </View>
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Drinking End Time (24hr format):</Text>
-        <View style={styles.inputBox}>
-          <TextInput
-            placeholder="HH:MM"
-            value={endTime}
-            onChangeText={(text) => {
-              if (text.length <= 5) {
-                if (text.length === 2 && endTime.length === 1) {
-                  text += ':';
-                }
-                setEndTime(text);
-              }
-            }}
-            keyboardType="numeric"
-            style={styles.input}
-            maxLength={5}
-          />
-        </View>
-      </View>
-      <View style={styles.nextButtonContainer}>
-        <Text style={styles.chosenHoursText}>{formatTime(drinkingTime)}</Text>
-        <Text style={styles.errorText}>{errorMessage}</Text>
-        <Text style={styles.totalLitersText}>To drink {totalLiters.toFixed(2)} litres.</Text>
-        <Button
-          title="Next"
-          onPress={handleSubmit}
-          disabled={drinkingTime < totalLiters * 60}
-        />
-      </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
