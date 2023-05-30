@@ -67,7 +67,7 @@ const HoursScreen = ({ navigation, route }) => {
         <Text style={styles.title}>Drinking Schedule</Text>
         <Text style={[styles.errorText, { color: '#d60036' }]}>It is unsafe to exceed 1 liter per hour!</Text>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Drinking Start Time (24hr format):</Text>
+          <Text style={styles.label}>Start Time (24hr format):</Text>
           <View style={styles.inputBox}>
             <TextInput
               placeholder="HH:MM"
@@ -87,7 +87,7 @@ const HoursScreen = ({ navigation, route }) => {
           </View>
         </View>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Drinking End Time (24hr format):</Text>
+          <Text style={styles.label}>End Time (24hr format):</Text>
           <View style={styles.inputBox}>
             <TextInput
               placeholder="HH:MM"
@@ -109,7 +109,7 @@ const HoursScreen = ({ navigation, route }) => {
         <View style={styles.nextButtonContainer}>
           <Text style={styles.totalLitersText}>{totalLiters.toFixed(2)} litres to drink each day.</Text>
           <Text style={styles.chosenHoursText}>{formatTime(drinkingTime)}</Text>
-          <Text style={[styles.errorText, { color: '#d60036' }]}>{errorMessage}</Text>
+          <Text style={[styles.errorText, { color: 'red' }]}>{errorMessage}</Text>
           <Button
             title="Next"
             onPress={handleSubmit}
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     fontFamily: 'HelveticaLT93BlackExtended', // Specify the custom font here
   },
   errorText: {
-    fontSize: 18,
+    fontSize: 14,
     marginBottom: 20,
     textAlign: 'center',
     color: '#333',
@@ -161,15 +161,15 @@ const styles = StyleSheet.create({
     fontFamily: 'HelveticaLT43LightExtended', // Specify the custom font here
   },
   inputBox: {
-    borderWidth: 1,
-    borderRadius: 4,
+    borderWidth: 0.5,
+    borderRadius: 50,
     borderColor: 'gray',
     backgroundColor: 'lightgreen',
   },
   input: {
-    width: 200,
+    width: 275,
     height: 40,
-    paddingHorizontal: 10,
+    paddingHorizontal: 15,
   },
   nextButtonContainer: {
     marginTop: 20,

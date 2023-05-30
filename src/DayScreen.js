@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Animated, Dimensions } from 'react-native';
 
-const DrinkScreen = ({ route, navigation }) => {
+const DayScreen = ({ route, navigation }) => {
   const { totalLiters, drinkingHoursInMinutes, startTime, endTime } = route.params;
 
   const [counter, setCounter] = useState(0);
@@ -212,8 +212,8 @@ const styles = StyleSheet.create({
   messageContainer: {
     alignSelf: 'center',
     backgroundColor: 'lightgreen',
-    padding: 18,
-    borderRadius: 50,
+    padding: 20,
+    borderRadius: 8,
     elevation: 5,
     marginBottom: 8,
   },
@@ -231,4 +231,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DrinkScreen;
+export default DayScreen;
