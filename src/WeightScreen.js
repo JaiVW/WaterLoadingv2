@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginBottom: 20,
     paddingHorizontal: 10,
-    backgroundColor: '#2ec2ff',
+    backgroundColor: 'lightgreen',
   },
   message: {
     fontSize: 14,

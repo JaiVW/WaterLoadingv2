@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#2ec2ff',
+    backgroundColor: '#0d75ff',
   },
   topContainer: {
     position: 'absolute',

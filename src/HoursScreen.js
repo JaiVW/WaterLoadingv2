@@ -31,7 +31,7 @@ const HoursScreen = ({ navigation, route }) => {
     } else {
       setDrinkingTime(calculatedDrinkingTime);
       if (calculatedDrinkingTime < totalLiters * 60) {
-        setErrorMessage('You must add more time to your drinking schedule');
+        setErrorMessage('Increase your drinking hours');
       } else {
         setErrorMessage('');
       }
@@ -65,7 +65,7 @@ const HoursScreen = ({ navigation, route }) => {
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={styles.container}>
         <Text style={styles.title}>Drinking Schedule</Text>
-        <Text style={[styles.errorText, { color: 'white' }]}>It is unsafe to exceed 1 liter per hour!</Text>
+        <Text style={[styles.errorText, { color: '#d60036' }]}>It is unsafe to exceed 1 liter per hour!</Text>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Drinking Start Time (24hr format):</Text>
           <View style={styles.inputBox}>
@@ -107,9 +107,9 @@ const HoursScreen = ({ navigation, route }) => {
           </View>
         </View>
         <View style={styles.nextButtonContainer}>
+          <Text style={styles.totalLitersText}>{totalLiters.toFixed(2)} litres to drink each day.</Text>
           <Text style={styles.chosenHoursText}>{formatTime(drinkingTime)}</Text>
-          <Text style={styles.errorText}>{errorMessage}</Text>
-          <Text style={styles.totalLitersText}>In total {totalLiters.toFixed(2)} litres.</Text>
+          <Text style={[styles.errorText, { color: '#d60036' }]}>{errorMessage}</Text>
           <Button
             title="Next"
             onPress={handleSubmit}
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     borderColor: 'gray',
-    backgroundColor: '#2ec2ff',
+    backgroundColor: 'lightgreen',
   },
   input: {
     width: 200,
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   },
   chosenHoursText: {
     fontSize: 18,
-    marginBottom: 0,
+    marginBottom: 20,
     textAlign: 'center',
     color: '#333',
     fontFamily: 'HelveticaLT43LightExtended', // Specify the custom font here
