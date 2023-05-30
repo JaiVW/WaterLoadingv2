@@ -38,11 +38,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
+    backgroundColor: '#f2f2f2',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#333',
   },
   input: {
     width: '80%',
@@ -51,11 +53,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 20,
     paddingHorizontal: 10,
+    backgroundColor: '#fff',
   },
   message: {
     fontSize: 18,
     marginBottom: 20,
     textAlign: 'center',
+    color: '#333',
   },
 });
 
