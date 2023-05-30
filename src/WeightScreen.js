@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
+import * as Font from 'expo-font';
 
 const WeightScreen = ({ navigation }) => {
   const [weight, setWeight] = useState('');
@@ -12,8 +13,7 @@ const WeightScreen = ({ navigation }) => {
   const calculateWeightLoss = () => {
     const minWeightLoss = (weight - weight * 0.02).toFixed(2);
     const maxWeightLoss = (weight - weight * 0.01).toFixed(2);
-    return `Your waterloaded weight: 
-    ${minWeightLoss}kg and ${maxWeightLoss}kg.`;
+    return `Post waterload weight: ${minWeightLoss}kg and ${maxWeightLoss}kg.`;
   };
 
   return (
@@ -38,28 +38,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#ffffff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#333',
+    fontFamily: 'HelveticaLT93BlackExtended', // Specify the custom font here
   },
   input: {
     width: '80%',
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
+    borderRadius: 4,
     marginBottom: 20,
     paddingHorizontal: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#2ec2ff',
   },
   message: {
-    fontSize: 18,
+    fontSize: 14,
     marginBottom: 20,
     textAlign: 'center',
     color: '#333',
+    fontFamily: 'HelveticaLT43LightExtended', // Specify the custom font here
   },
 });
 

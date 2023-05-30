@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import * as Font from 'expo-font';
 
 const HoursScreen = ({ navigation, route }) => {
   const [startTime, setStartTime] = useState('');
@@ -64,7 +65,7 @@ const HoursScreen = ({ navigation, route }) => {
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={styles.container}>
         <Text style={styles.title}>Drinking Schedule</Text>
-        <Text style={[styles.errorText, { color: 'red' }]}>It is unsafe to exceed 1 liter per hour!</Text>
+        <Text style={[styles.errorText, { color: 'white' }]}>It is unsafe to exceed 1 liter per hour!</Text>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Drinking Start Time (24hr format):</Text>
           <View style={styles.inputBox}>
@@ -108,7 +109,7 @@ const HoursScreen = ({ navigation, route }) => {
         <View style={styles.nextButtonContainer}>
           <Text style={styles.chosenHoursText}>{formatTime(drinkingTime)}</Text>
           <Text style={styles.errorText}>{errorMessage}</Text>
-          <Text style={styles.totalLitersText}>To drink {totalLiters.toFixed(2)} litres.</Text>
+          <Text style={styles.totalLitersText}>In total {totalLiters.toFixed(2)} litres.</Text>
           <Button
             title="Next"
             onPress={handleSubmit}
@@ -126,34 +127,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
+    backgroundColor: '#ffffff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: 'black',
+    color: '#333',
+    fontFamily: 'HelveticaLT93BlackExtended', // Specify the custom font here
   },
   errorText: {
     fontSize: 18,
-    color: 'red',
-    marginBottom: 8,
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#333',
+    fontFamily: 'HelveticaLT43LightExtended', // Specify the custom font here,
   },
   text: {
     fontSize: 18,
     marginBottom: 20,
+    textAlign: 'center',
+    color: '#333',
+    fontFamily: 'HelveticaLT43LightExtended', // Specify the custom font here
   },
   inputContainer: {
     marginBottom: 20,
   },
   label: {
-    fontSize: 18,
+    fontSize: 14,
     marginBottom: 8,
-    color: 'black',
+    textAlign: 'center',
+    color: '#333',
+    fontFamily: 'HelveticaLT43LightExtended', // Specify the custom font here
   },
   inputBox: {
     borderWidth: 1,
     borderRadius: 4,
     borderColor: 'gray',
+    backgroundColor: '#2ec2ff',
   },
   input: {
     width: 200,
@@ -166,11 +177,17 @@ const styles = StyleSheet.create({
   },
   chosenHoursText: {
     fontSize: 18,
-    marginBottom: 8,
+    marginBottom: 0,
+    textAlign: 'center',
+    color: '#333',
+    fontFamily: 'HelveticaLT43LightExtended', // Specify the custom font here
   },
   totalLitersText: {
     fontSize: 18,
     marginBottom: 20,
+    textAlign: 'center',
+    color: '#333',
+    fontFamily: 'HelveticaLT43LightExtended', // Specify the custom font here
   },
 });
 

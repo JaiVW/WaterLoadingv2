@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Animated, Dimensions } from 'react-native';
+import * as Font from 'expo-font';
 
 const DrinkScreen = ({ route, navigation }) => {
   const { totalLiters, drinkingHoursInMinutes, startTime, endTime } = route.params;
@@ -126,6 +127,7 @@ const DrinkScreen = ({ route, navigation }) => {
 
         
       </View>
+      <Text style={styles.title}>Waterloading</Text>
       <Text style={styles.text}>
       Liters per day:     {totalLiters.toFixed(2)}L
       </Text>
@@ -145,7 +147,7 @@ const DrinkScreen = ({ route, navigation }) => {
         </View>
       )}
       <Text style={styles.firstLiterTime}>Finish this litre by: {firstLiterTime}</Text>
-      <Text style={[styles.text, { color: 'red' }]}>Do not exceed 1 liter per hour.</Text>
+      <Text style={[styles.text, { color: 'black' }]}>Do not exceed 1 liter per hour.</Text>
       <Text style={styles.counterText}>{calculateLitersDrunk()} L drunk so far</Text>
       <Text style={styles.counterText}>{calculateLitersLeft()} left to drink </Text>
       
@@ -160,6 +162,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     backgroundColor: 'blue',
+
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 30,
+    color: '#000000',
+    fontFamily: 'HelveticaLT93BlackExtended', // Specify the custom font here
   },
   background: {
     position: 'absolute',
@@ -167,18 +177,20 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'blue',
+    backgroundColor: '#2ec2ff',
   },
   topContainer: {
     position: 'absolute',
     top: 16,
     zIndex: 1,
+
   },
   text: {
-    fontSize: 18,
+    fontSize: 20,
     marginBottom: 20,
     textAlign: 'center',
     zIndex: 1,
+    fontFamily: 'HelveticaLT43LightExtended', // Specify the custom font here
   },
   buttonContainer: {
     width: 100,
@@ -189,12 +201,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 50,
     zIndex: 1,
+
   },
   counterText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 20,
+    fontSize: 16,
+    //fontWeight: 'bold',
+    marginTop: 15,
     zIndex: 1,
+    fontFamily: 'HelveticaLT93BlackExtended', // Specify the custom font here
   },
   fill: {
     position: 'absolute',
@@ -206,20 +220,24 @@ const styles = StyleSheet.create({
   messageContainer: {
     alignSelf: 'center',
     backgroundColor: 'lightgreen',
-    padding: 16,
+    padding: 20,
     borderRadius: 8,
     elevation: 5,
     marginBottom: 8,
+
   },
   messageText: {
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'HelveticaLT43LightExtended',  
   },
-  firstLiterTime: {
+  
+firstLiterTime: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 8,
     textAlign: 'center',
+    fontFamily: 'HelveticaLT43LightExtended', // Specify the custom font here
   },
 });
 
