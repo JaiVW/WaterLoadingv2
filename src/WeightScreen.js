@@ -12,7 +12,8 @@ const WeightScreen = ({ navigation }) => {
   const calculateWeightLoss = () => {
     const minWeightLoss = (weight - weight * 0.02).toFixed(2);
     const maxWeightLoss = (weight - weight * 0.01).toFixed(2);
-    return `Your estimated weight will be ${minWeightLoss}kg and ${maxWeightLoss}kg.`;
+    return `Your waterloaded weight: 
+    ${minWeightLoss}kg and ${maxWeightLoss}kg.`;
   };
 
   return (

@@ -15,6 +15,7 @@
     "@react-native-picker/picker": "2.4.8",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/stack": "^6.3.16",
+    "bootstrap": "^5.2.3",
     "date-fns": "^2.30.0",
     "expo": "^48.0.17",
     "expo-status-bar": "~1.4.4",

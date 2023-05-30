@@ -127,15 +127,14 @@ const DrinkScreen = ({ route, navigation }) => {
         
       </View>
       <Text style={styles.text}>
-        You must drink {totalLiters.toFixed(2)} liters per day.
+      Liters per day:     {totalLiters.toFixed(2)}L
       </Text>
       <Text style={styles.text}>
-        You have a {totalHours}hr{totalMinutes}.
+        Overall time:     {totalHours}hr{totalMinutes}
       </Text>
       <Text style={styles.text}>
-        {timePerLiterHours}hr{timePerLiterMinutes} to drink one liter.
+        Time per litre:     {timePerLiterHours}hr{timePerLiterMinutes}
       </Text>
-      <Text style={[styles.text, { color: 'black' }]}>Do not exceed 1 liter per hour.</Text>
       {timePerLiterHours < 1 ? (
         <View style={styles.buttonContainer}>
           <Button title="Go back" onPress={goBack} />
@@ -146,7 +145,7 @@ const DrinkScreen = ({ route, navigation }) => {
         </View>
       )}
       <Text style={styles.firstLiterTime}>Finish this litre by: {firstLiterTime}</Text>
-    
+      <Text style={[styles.text, { color: 'red' }]}>Do not exceed 1 liter per hour.</Text>
       <Text style={styles.counterText}>{calculateLitersDrunk()} L drunk so far</Text>
       <Text style={styles.counterText}>{calculateLitersLeft()} left to drink </Text>
       
@@ -177,7 +176,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 18,
-    marginBottom: 10,
+    marginBottom: 20,
     textAlign: 'center',
     zIndex: 1,
   },
@@ -188,7 +187,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightgrey',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 50,
     zIndex: 1,
   },
   counterText: {
