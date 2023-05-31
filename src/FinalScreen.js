@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-const Day5Screen = ({ route }) => {
-  const { weight } = route.params;
+const FinalScreen = ({ route }) => {
+  const { weight } = route.params ?? {};
   const waterToDrink = (weight * 0.01).toFixed(2);
 
   return (
@@ -42,4 +44,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Day5Screen;
+export default FinalScreen;

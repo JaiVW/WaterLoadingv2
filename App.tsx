@@ -5,8 +5,9 @@ import * as Font from 'expo-font';
 
 import WeightScreen from './src/WeightScreen';
 import HoursScreen from './src/HoursScreen';
+import DayScreen from './src/DayScreen';
 import DrinkScreen from './src/DrinkScreen';
-import Day5Screen from './src/Day5Screen';
+import FinalScreen from './src/FinalScreen';
 
 const Stack = createStackNavigator();
 
@@ -14,6 +15,7 @@ const App = () => {
   const [dataLoaded, setDataLoaded] = useState(false);
   const [weight, setWeight] = useState(0);
   const [drinkingHours, setDrinkingHours] = useState(0);
+  const [day, setDay] = useState(1);
 
   useEffect(() => {
     const loadFonts = async () => {
@@ -30,11 +32,11 @@ const App = () => {
     loadFonts();
   }, []);
 
-  const handleWeightChange = (newWeight) => {
+  const handleWeightChange = (newWeight: number) => {
     setWeight(newWeight);
   };
 
-  const handleDrinkingHoursChange = (newDrinkingHours) => {
+  const handleDrinkingHoursChange = (newDrinkingHours: number) => {
     setDrinkingHours(newDrinkingHours);
   };
 
@@ -58,15 +60,34 @@ const App = () => {
           initialParams={{ onDrinkingHoursChange: handleDrinkingHoursChange }}
         />
         <Stack.Screen
+          name="DayScreen"
+          component={DayScreen}
+          options={{ title: 'Day 1' }}
+          initialParams={{ day }}
+          listeners={({ navigation }) => ({
+            focus: () => {
+              setTimeout(() => {
+                if (day === 5) {
+                  setDay(1);
+                  navigation.navigate('FinalScreen');
+                } else {
+                  setDay((prevDay) => prevDay + 1);
+                  navigation.navigate('DrinkScreen', { weight, drinkingHours });
+                }
+              }, 3000);
+            },
+          })}
+        />
+        <Stack.Screen
           name="DrinkScreen"
           component={DrinkScreen}
           options={{ title: 'Drink Reminder' }}
           initialParams={{ weight, drinkingHours }}
         />
         <Stack.Screen
-          name="Day5Screen"
-          component={Day5Screen}
-          options={{ title: 'Fifth Day' }}
+          name="FinalScreen"
+          component={FinalScreen}
+          options={{ title: 'Final Screen' }}
           initialParams={{ weight }}
         />
       </Stack.Navigator>

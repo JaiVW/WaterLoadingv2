@@ -1,152 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, Animated, Dimensions } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Button } from 'react-native';
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-const DayScreen = ({ route, navigation }) => {
-  const { totalLiters, drinkingHoursInMinutes, startTime, endTime } = route.params;
+const DayScreen = ({ navigation, route }) => {
+  const { day = 1 } = route.params ?? {};
 
-  const [counter, setCounter] = useState(0);
-  const [screenColor, setScreenColor] = useState('red');
-  const [fillAnimation] = useState(new Animated.Value(0));
-  const [showHalfwayMessage, setShowHalfwayMessage] = useState(false);
-  const [showLastOneMessage, setShowLastOneMessage] = useState(false);
-  const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
-
-  const totalHours = Math.floor(drinkingHoursInMinutes / 60);
-  const totalMinutes = drinkingHoursInMinutes % 60;
-  const drinkingTimePerLiterMinutes = totalLiters !== 0 ? Math.floor(drinkingHoursInMinutes / totalLiters) : 0;
-  const timePerLiterHours = Math.floor(drinkingTimePerLiterMinutes / 60);
-  const timePerLiterMinutes = drinkingTimePerLiterMinutes % 60;
-
-  const startMinutes = parseInt(startTime.substring(0, 2)) * 60 + parseInt(startTime.substring(3, 5));
-  const firstLiterMinutes = startMinutes + drinkingTimePerLiterMinutes;
-
-  const firstLiterHours = Math.floor(firstLiterMinutes / 60);
-  const firstLiterMins = firstLiterMinutes % 60;
-
-  const [firstLiterTime, setFirstLiterTime] = useState(`${firstLiterHours} hrs ${firstLiterMins}`);
-
-  const screenHeight = Dimensions.get('window').height;
-
-  const increaseCounter = () => {
-    if (counter < totalLiters) {
-      const newCounter = counter + 1;
-      const fillValue = newCounter / totalLiters;
-
-      setCounter(newCounter);
-
-      const timeToAdd = (newCounter + 1) * drinkingTimePerLiterMinutes;
-
-      const currentTime = startMinutes + timeToAdd;
-      const currentHours = Math.floor(currentTime / 60);
-      const currentMinutes = currentTime % 60;
-
-      const currentDrinkTime = `${currentHours} hrs ${currentMinutes}`;
-
-      setFirstLiterTime(currentDrinkTime);
-
-      Animated.timing(fillAnimation, {
-        toValue: fillValue,
-        duration: 1000, // Adjust the duration as needed
-        useNativeDriver: false,
-      }).start(() => {
-        if (newCounter >= totalLiters) {
-          setScreenColor('green');
-          setShowAllDoneMessage(true);
-        } else if (newCounter === Math.floor(totalLiters * 0.95)) {
-          setShowLastOneMessage(true);
-          setTimeout(() => setShowLastOneMessage(false), 3000); // Show the message for 3 seconds
-        } else if (newCounter === Math.floor(totalLiters * 0.55)) {
-          setShowHalfwayMessage(true);
-          setTimeout(() => setShowHalfwayMessage(false), 3000); // Show the message for 3 seconds
-        } else if (newCounter === totalLiters) {
-          setShowAllDoneMessage(true);
-          setTimeout(() => setShowAllDoneMessage(false), 3000); // Show the message for 3 seconds
-        }
-      });
-    }
-  };
-
-  const fillHeight = fillAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0%', '100%'],
-    extrapolate: 'clamp',
-  });
-
-  const goBack = () => {
-    navigation.goBack();
-  };
-
-  const calculateLitersLeft = () => {
-    const litersLeft = totalLiters - counter;
-    if (litersLeft >= 1) {
-      return litersLeft.toFixed(2) + ' L';
+  const handleNextDay = () => {
+    if (day < 5) {
+      navigation.navigate('DayScreen', { day: day + 1 });
     } else {
-      const millilitersLeft = (litersLeft * 1000).toFixed(0);
-      return Math.max(0, millilitersLeft) + 'ml';
+      navigation.navigate('Day5Screen', { weight: 0 });
     }
   };
 
-  const calculateLitersDrunk = () => {
-    if (counter < totalLiters) {
-      return counter.toFixed(2);
-    } else {
-      return totalLiters.toFixed(2);
-    }
+  const getDayText = (number) => {
+    return `Day ${number}`;
   };
-
-  useEffect(() => {
-    if (counter + 1 >= totalLiters) {
-      setFirstLiterTime(endTime);
-    }
-  }, [counter, endTime, totalLiters]);
 
   return (
     <View style={styles.container}>
-      <View style={styles.background}>
-        <Animated.View style={[styles.fill, { height: fillHeight }]} />
-      </View>
-      <View style={styles.topContainer}>
-        {showHalfwayMessage && (
-          <View style={styles.messageContainer}>
-            <Text style={styles.messageText}>Halfway there!</Text>
-          </View>
-        )}
-
-        {showLastOneMessage && (
-          <View style={styles.messageContainer}>
-            <Text style={styles.messageText}>Last few sips!</Text>
-          </View>
-        )}
-
-        {showAllDoneMessage && (
-          <View style={styles.messageContainer}>
-            <Text style={styles.messageText}>You're finished. Well done!</Text>
-          </View>
-        )}
-      </View>
-      <Text style={styles.title}>Waterloading</Text>
-      <Text style={styles.text}>
-        Liters per day: {totalLiters.toFixed(2)}L
-      </Text>
-      <Text style={styles.text}>
-        Overall time: {totalHours}hr{totalMinutes}
-      </Text>
-      <Text style={styles.text}>
-        Time per litre: {timePerLiterHours}hr{timePerLiterMinutes}
-      </Text>
-      {timePerLiterHours < 1 ? (
-        <View style={styles.buttonContainer}>
-          <Button title="Go back" onPress={goBack} />
-        </View>
-      ) : (
-        <View style={styles.buttonContainer}>
-          <Button title="1L" onPress={increaseCounter} disabled={counter >= totalLiters} />
-        </View>
-      )}
-      <Text style={styles.firstLiterTime}>Finish this litre by: {firstLiterTime}</Text>
-      <Text style={[styles.text, { color: 'black' }]}>Do not exceed 1 liter per hour.</Text>
-      <Text style={styles.counterText}>{calculateLitersDrunk()} L drunk so far</Text>
-      <Text style={styles.counterText}>{calculateLitersLeft()} left to drink</Text>
+      <Text style={styles.title}>{getDayText(day)}</Text>
+      <Button title="Next Day" onPress={handleNextDay} />
     </View>
   );
 };
@@ -162,72 +37,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 30,
-    color: '#000000',
-    fontFamily: 'HelveticaLT93BlackExtended',
-  },
-  background: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#0d75ff',
-  },
-  topContainer: {
-    position: 'absolute',
-    top: 16,
-    zIndex: 1,
-  },
-  text: {
-    fontSize: 20,
     marginBottom: 20,
-    textAlign: 'center',
-    zIndex: 1,
-    fontFamily: 'HelveticaLT43LightExtended',
-  },
-  buttonContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: 'lightgrey',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 50,
-    zIndex: 1,
-  },
-  counterText: {
-    fontSize: 16,
-    marginTop: 15,
-    zIndex: 1,
+    color: '#333',
     fontFamily: 'HelveticaLT93BlackExtended',
-  },
-  fill: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'white',
-  },
-  messageContainer: {
-    alignSelf: 'center',
-    backgroundColor: 'lightgreen',
-    padding: 20,
-    borderRadius: 8,
-    elevation: 5,
-    marginBottom: 8,
-  },
-  messageText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: 'HelveticaLT43LightExtended',
-  },
-  firstLiterTime: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
-    fontFamily: 'HelveticaLT43LightExtended',
   },
 });
 
