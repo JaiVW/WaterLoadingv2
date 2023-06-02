@@ -20,9 +20,6 @@ const App = () => {
   useEffect(() => {
     const loadFonts = async () => {
       await Font.loadAsync({
-        'Montserrat-Medium': require('./src/assets/fonts/Montserrat-Medium.ttf'),
-        'Montserrat-Black': require('./src/assets/fonts/Montserrat-Black.ttf'),
-        'SpaceMono-Bold': require('./src/assets/fonts/SpaceMono-Bold.ttf'),
         'HelveticaLT93BlackExtended': require('./src/assets/fonts/HelveticaLT93BlackExtended.ttf'),
         'HelveticaLT43LightExtended': require('./src/assets/fonts/HelveticaLT43LightExtended.ttf'),
       });

@@ -10,27 +10,35 @@ const DrinkScreen = ({ route, navigation }) => {
   const [showHalfwayMessage, setShowHalfwayMessage] = useState(false);
   const [showLastOneMessage, setShowLastOneMessage] = useState(false);
   const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
+  const [buttonDisabled, setButtonDisabled] = useState(false);
 
   const totalHours = Math.floor(drinkingHoursInMinutes / 60);
+  console.log()
   const totalMinutes = drinkingHoursInMinutes % 60;
+  console.log()
   const drinkingTimePerLiterMinutes = totalLiters !== 0 ? Math.floor(drinkingHoursInMinutes / totalLiters) : 0;
+  console.log()
   const timePerLiterHours = Math.floor(drinkingTimePerLiterMinutes / 60);
+  console.log()
   const timePerLiterMinutes = drinkingTimePerLiterMinutes % 60;
+  console.log()
 
-  const startMinutes = parseInt(startTime.substring(0, 2)) * 60 + parseInt(startTime.substring(3, 5));
+  const startMinutes = startTime ? parseInt(startTime.substring(0, 2)) * 60 + parseInt(startTime.substring(3, 5)) : 0;
   const firstLiterMinutes = startMinutes + drinkingTimePerLiterMinutes;
 
   const firstLiterHours = Math.floor(firstLiterMinutes / 60);
   const firstLiterMins = firstLiterMinutes % 60;
+  console.log()
 
   const [firstLiterTime, setFirstLiterTime] = useState(`${firstLiterHours} hrs ${firstLiterMins}`);
 
   const screenHeight = Dimensions.get('window').height;
 
   const increaseCounter = () => {
-    if (counter < totalLiters) {
+    if (counter < totalLiters && !buttonDisabled) {
       const newCounter = counter + 1;
       const fillValue = newCounter / totalLiters;
+      console.log()
 
       setCounter(newCounter);
 
@@ -52,6 +60,7 @@ const DrinkScreen = ({ route, navigation }) => {
         if (newCounter >= totalLiters) {
           setScreenColor('green');
           setShowAllDoneMessage(true);
+          setButtonDisabled(true);
         } else if (newCounter === Math.floor(totalLiters * 0.95)) {
           setShowLastOneMessage(true);
           setTimeout(() => setShowLastOneMessage(false), 3000); // Show the message for 3 seconds
@@ -89,16 +98,30 @@ const DrinkScreen = ({ route, navigation }) => {
   const calculateLitersDrunk = () => {
     if (counter < totalLiters) {
       return counter.toFixed(2);
-    } else {
+    } else if (totalLiters !== undefined) {
       return totalLiters.toFixed(2);
+    } else {
+      return '0.00';
     }
   };
 
+
   useEffect(() => {
+    console.log('counter:', counter);
     if (counter + 1 >= totalLiters) {
       setFirstLiterTime(endTime);
     }
   }, [counter, endTime, totalLiters]);
+
+  const handleNextDay = () => {
+    if (typeof day !== 'undefined' && day < 5) {
+      navigation.navigate('DayScreen', {
+        day: day + 1,
+        totalLiters: totalLiters
+      });
+    }
+  };
+
 
   return (
     <View style={styles.container}>
@@ -126,7 +149,7 @@ const DrinkScreen = ({ route, navigation }) => {
       </View>
       <Text style={styles.title}>Waterloading</Text>
       <Text style={styles.text}>
-        Liters per day: {totalLiters.toFixed(2)}L
+        Liters per day: {totalLiters ? totalLiters.toFixed(2) : 0}L
       </Text>
       <Text style={styles.text}>
         Overall time: {totalHours}hr{totalMinutes}
@@ -140,7 +163,11 @@ const DrinkScreen = ({ route, navigation }) => {
         </View>
       ) : (
         <View style={styles.buttonContainer}>
-          <Button title="1L" onPress={increaseCounter} disabled={counter >= totalLiters} />
+          {buttonDisabled ? (
+            <Button title="Next Day" onPress={handleNextDay} />
+          ) : (
+            <Button title="1L" onPress={increaseCounter} disabled={counter >= totalLiters} />
+          )}
         </View>
       )}
       <Text style={styles.firstLiterTime}>Finish this litre by: {firstLiterTime}</Text>

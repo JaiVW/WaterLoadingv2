@@ -7,8 +7,12 @@ const WeightScreen = ({ navigation }) => {
 
   const handleSubmit = () => {
     // Perform validation and navigate to the next screen
-    navigation.navigate('HoursScreen', { weight: parseFloat(weight) });
+    navigation.navigate('HoursScreen', {
+      weight: parseFloat(weight),
+      totalLiters: parseFloat(weight) * 0.1,
+    });
   };
+  
 
   const calculateWeightLoss = () => {
     const minWeightLoss = (weight - weight * 0.02).toFixed(2);
