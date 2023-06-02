@@ -36,7 +36,7 @@ const DayScreen = ({ navigation, route }) => {
 
   const handleNextDay = () => {
     if (day < 5) {
-      navigation.navigate('DrinkScreen', {
+      navigation.navigate('WaterScreen', {
         day: day + 1,
         totalLiters: route.params.totalLiters,
         drinkingHoursInMinutes: route.params.drinkingHoursInMinutes,
@@ -44,9 +44,19 @@ const DayScreen = ({ navigation, route }) => {
         endTime: route.params.endTime,
       });
     } else {
-      navigation.navigate('FinalScreen', { weight: 0 });
+      navigation.navigate('LastScreen', {
+        totalLiters: route.params.totalLiters,
+        drinkingHoursInMinutes: route.params.drinkingHoursInMinutes,
+        startTime: route.params.startTime,
+        endTime: route.params.endTime, 
+      });
     }
   };
+  
+    console.log('totalLiters:', route.params.totalLiters);
+    console.log('drinkingHoursInMinutes:', route.params.drinkingHoursInMinutes);
+    console.log('startTime:', route.params.startTime);
+    console.log('endTime:', route.params.endTime);
 
   return (
     <View style={styles.container}>

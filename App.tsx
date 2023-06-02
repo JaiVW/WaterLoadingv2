@@ -6,8 +6,9 @@ import * as Font from 'expo-font';
 import WeightScreen from './src/WeightScreen';
 import HoursScreen from './src/HoursScreen';
 import DayScreen from './src/DayScreen';
-import DrinkScreen from './src/DrinkScreen';
-import FinalScreen from './src/FinalScreen';
+import WaterScreen from './src/WaterScreen';
+import FinalScreen from './src/LastScreen';
+import LastScreen from './src/LastScreen';
 
 const Stack = createStackNavigator();
 
@@ -76,15 +77,15 @@ const App = () => {
           })}
         />
         <Stack.Screen
-          name="DrinkScreen"
-          component={DrinkScreen}
+          name="WaterScreen"
+          component={WaterScreen}
           options={{ title: 'Drink Reminder' }}
           initialParams={{ weight, drinkingHours }}
         />
         <Stack.Screen
-          name="FinalScreen"
-          component={FinalScreen}
-          options={{ title: 'Final Screen' }}
+          name="LastScreen"
+          component={LastScreen}
+          options={{ title: 'Last Screen' }}
           initialParams={{ weight }}
         />
       </Stack.Navigator>
