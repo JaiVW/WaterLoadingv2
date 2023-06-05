@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Animated, Dimensions } from 'react-native';
-
+import { Notifications } from 'expo';
+import * as Permissions from 'expo-permissions';
 
 const WaterScreen = ({ route, navigation }) => {
   const { totalLiters, drinkingHoursInMinutes, startTime, endTime } = route.params;
@@ -26,7 +27,6 @@ const WaterScreen = ({ route, navigation }) => {
   const firstLiterMins = firstLiterMinutes % 60;
 
   const [firstLiterTime, setFirstLiterTime] = useState(`${String(firstLiterHours).padStart(2, '0')}:${String(firstLiterMins).padStart(2, '0')}`);
-
 
   const screenHeight = Dimensions.get('window').height;
 
@@ -56,18 +56,52 @@ const WaterScreen = ({ route, navigation }) => {
           setScreenColor('green');
           setShowAllDoneMessage(true);
           setButtonDisabled(true);
+          scheduleNotification('You have reached your daily water intake goal!');
         } else if (newCounter === Math.floor(totalLiters * 0.95)) {
           setShowLastOneMessage(true);
           setTimeout(() => setShowLastOneMessage(false), 3000); // Show the message for 3 seconds
+          scheduleNotification('Only a few sips left!');
         } else if (newCounter === Math.floor(totalLiters * 0.55)) {
           setShowHalfwayMessage(true);
           setTimeout(() => setShowHalfwayMessage(false), 3000); // Show the message for 3 seconds
-        } else if (newCounter === totalLiters) {
-          setShowAllDoneMessage(true);
-          setTimeout(() => setShowAllDoneMessage(false), 3000); // Show the message for 3 seconds
+          scheduleNotification('You are halfway there!');
         }
       });
     }
+  };
+
+  const scheduleNotification = async (message) => {
+    const timeToAdd = (counter + 1) * drinkingTimePerLiterMinutes;
+    const currentTime = startMinutes + timeToAdd;
+    const notificationTime = new Date();
+    notificationTime.setHours(Math.floor(currentTime / 60));
+    notificationTime.setMinutes(currentTime % 60); 
+    console.log()
+
+    const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') {
+      console.log('Permission for notifications not granted');
+      return;
+    }
+
+    const schedulingOptions = {
+      content: {
+        title: 'Waterloading',
+        body: message,
+        sound: 'default',
+        vibrate: true,
+      },
+      trigger: notificationTime,
+    };
+
+    Notifications.scheduleNotificationAsync(schedulingOptions);
+    console.log()
   };
 
 console.log('totalLiters:', route.params.totalLiters);
@@ -81,6 +115,7 @@ console.log('timePerLiterHours:', timePerLiterHours);
 console.log('timePerLiterMinutes:', timePerLiterMinutes);
 console.log('firstLiterHours:', firstLiterHours);
 console.log('firstLiterMins:', firstLiterMins);
+
 
   const fillHeight = fillAnimation.interpolate({
     inputRange: [0, 1],
