@@ -1,21 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button } from 'react-native';
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 
 const DayScreen = ({ navigation, route }) => {
   const { day = 1 } = route.params ?? {};
+  const [currentDay, setCurrentDay] = useState(day);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsButtonDisabled(false);
-    }, 3000);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
+  const [isNextDayLocked, setIsNextDayLocked] = useState(true);
 
   const getDayText = (day) => {
     switch (day) {
@@ -35,9 +25,12 @@ const DayScreen = ({ navigation, route }) => {
   };
 
   const handleNextDay = () => {
-    if (day < 5) {
+    if (currentDay < 5) {
+      setCurrentDay(currentDay + 1);
+      setIsButtonDisabled(true);
+      setIsNextDayLocked(true);
       navigation.navigate('WaterScreen', {
-        day: day + 1,
+        day: currentDay + 1,
         totalLiters: route.params.totalLiters,
         drinkingHoursInMinutes: route.params.drinkingHoursInMinutes,
         startTime: route.params.startTime,
@@ -48,19 +41,23 @@ const DayScreen = ({ navigation, route }) => {
         totalLiters: route.params.totalLiters,
         drinkingHoursInMinutes: route.params.drinkingHoursInMinutes,
         startTime: route.params.startTime,
-        endTime: route.params.endTime, 
+        endTime: route.params.endTime,
       });
     }
   };
-  
-    console.log('totalLiters:', route.params.totalLiters);
-    console.log('drinkingHoursInMinutes:', route.params.drinkingHoursInMinutes);
-    console.log('startTime:', route.params.startTime);
-    console.log('endTime:', route.params.endTime);
+
+  useEffect(() => {
+    const today = new Date().getDay();
+    setIsNextDayLocked(today !== currentDay);
+    setIsButtonDisabled(today !== currentDay);
+  }, []);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{getDayText(day)}</Text>
+      <Text style={styles.title}>{getDayText(currentDay)}</Text>
+      {isNextDayLocked && (
+        <Text style={styles.lockedText}>Next day will be unlocked tomorrow</Text>
+      )}
       <View style={styles.buttonContainer}>
         <Button title="Next" onPress={handleNextDay} disabled={isButtonDisabled} />
       </View>
@@ -81,6 +78,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#333',
+    fontFamily: 'HelveticaLT93BlackExtended',
+  },
+  lockedText: {
+    fontSize: 16,
+    marginBottom: 20,
+    color: '#999',
     fontFamily: 'HelveticaLT93BlackExtended',
   },
   buttonContainer: {
