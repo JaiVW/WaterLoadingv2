@@ -5,7 +5,7 @@ const DayScreen = ({ navigation, route }) => {
   const { day = 1 } = route.params ?? {};
   const [currentDay, setCurrentDay] = useState(day);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-  const [isNextDayLocked, setIsNextDayLocked] = useState(true);
+  const [isNextDayLocked, setIsNextDayLocked] = useState(false);
 
   const getDayText = (day) => {
     switch (day) {
@@ -48,15 +48,15 @@ const DayScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     const today = new Date().getDay();
-    setIsNextDayLocked(today !== currentDay);
-    setIsButtonDisabled(today !== currentDay);
+    setIsNextDayLocked(currentDay !== 1 && today !== currentDay);
+    setIsButtonDisabled(currentDay !== 1 && today !== currentDay);
   }, []);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{getDayText(currentDay)}</Text>
       {isNextDayLocked && (
-        <Text style={styles.lockedText}>Next day will be unlocked tomorrow</Text>
+        <Text style={styles.lockedText}>will be unlocked tomorrow</Text>
       )}
       <View style={styles.buttonContainer}>
         <Button title="Next" onPress={handleNextDay} disabled={isButtonDisabled} />
