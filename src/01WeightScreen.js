@@ -11,6 +11,8 @@ const WeightScreen = ({ navigation }) => {
       weight: parseFloat(weight),
       totalLiters: parseFloat(weight) * 0.1,
     });
+    console.log('WeightScreen - totalLiters:', parseFloat(weight) * 0.1);
+    console.log('WeightScreen - weight:', weight);
   };
   
 

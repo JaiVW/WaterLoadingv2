@@ -25,10 +25,14 @@ const DayScreen = ({ navigation, route }) => {
   };
 
   const handleNextDay = () => {
-    if (currentDay < 5) {
+    if (currentDay + 1 <= 5) { // Check if currentDay + 1 is less than or equal to 5
       setCurrentDay(currentDay + 1);
       setIsButtonDisabled(true);
       setIsNextDayLocked(true);
+      console.log('DayScreen - totalLiters:', route.params.totalLiters);
+      console.log('DayScreen - drinkingHoursInMinutes:', route.params.drinkingHoursInMinutes);
+      console.log('DayScreen - startTime:', route.params.startTime);
+      console.log('DayScreen - endTime:', route.params.endTime);
       navigation.navigate('WaterScreen', {
         day: currentDay + 1,
         totalLiters: route.params.totalLiters,

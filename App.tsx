@@ -3,12 +3,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Font from 'expo-font';
 
-import WeightScreen from './src/WeightScreen';
-import HoursScreen from './src/HoursScreen';
-import DayScreen from './src/DayScreen';
-import WaterScreen from './src/WaterScreen';
-import FinalScreen from './src/LastScreen';
-import LastScreen from './src/LastScreen';
+import WeightScreen from './src/01WeightScreen';
+import HoursScreen from './src/02HoursScreen';
+import DayScreen from './src/03DayScreen';
+import WaterScreen from './src/04WaterScreen';
+import LastScreen from './src/05LastScreen';
 
 const Stack = createStackNavigator();
 
@@ -61,20 +60,7 @@ const App = () => {
           name="DayScreen"
           component={DayScreen}
           options={{ title: 'Day 1' }}
-          initialParams={{ day }}
-          listeners={({ navigation }) => ({
-            focus: () => {
-              setTimeout(() => {
-                if (day === 5) {
-                  setDay(1);
-                  navigation.navigate('FinalScreen');
-                } else {
-                  setDay((prevDay) => prevDay + 1);
-                  navigation.navigate('DrinkScreen', { weight, drinkingHours });
-                }
-              }, 3000);
-            },
-          })}
+          initialParams={{ day , weight, drinkingHours  }}
         />
         <Stack.Screen
           name="WaterScreen"

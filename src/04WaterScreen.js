@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Animated, Dimensions } from 'react-native';
-import { Notifications } from 'expo';
-import * as Permissions from 'expo-permissions';
 
 const WaterScreen = ({ route, navigation }) => {
-  const { totalLiters, drinkingHoursInMinutes, startTime, endTime } = route.params;
+  const { totalLiters, drinkingHoursInMinutes, startTime, endTime } = route.params || {};
 
+  console.log('WaterScreen - totalLiters:', totalLiters);
+  console.log('WaterScreen - drinkingHoursInMinutes:', drinkingHoursInMinutes);
+  console.log('WaterScreen - startTime:', startTime);
+  console.log('WaterScreen - endTime:', endTime);
   const [counter, setCounter] = useState(0);
   const [screenColor, setScreenColor] = useState('red');
   const [fillAnimation] = useState(new Animated.Value(0));
@@ -14,11 +16,11 @@ const WaterScreen = ({ route, navigation }) => {
   const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
-  const totalHours = Math.floor(drinkingHoursInMinutes / 60);
-  const totalMinutes = drinkingHoursInMinutes % 60;
-  const drinkingTimePerLiterMinutes = totalLiters !== 0 ? Math.floor(drinkingHoursInMinutes / totalLiters) : 0;
-  const timePerLiterHours = Math.floor(drinkingTimePerLiterMinutes / 60);
-  const timePerLiterMinutes = drinkingTimePerLiterMinutes % 60;
+  const totalHours = Math.floor((drinkingHoursInMinutes ?? 0) / 60);
+  const totalMinutes = (drinkingHoursInMinutes ?? 0) % 60;
+  const drinkingTimePerLiterMinutes = totalLiters !== 0 ? Math.floor((drinkingHoursInMinutes ?? 0) / (totalLiters ?? 1)) : 0;
+  const timePerLiterHours = Math.floor((drinkingTimePerLiterMinutes ?? 0) / 60);
+  const timePerLiterMinutes = (drinkingTimePerLiterMinutes ?? 0) % 60;
 
   const startMinutes = startTime ? parseInt(startTime.substring(0, 2)) * 60 + parseInt(startTime.substring(3, 5)) : 0;
   const firstLiterMinutes = startMinutes + drinkingTimePerLiterMinutes;
@@ -29,24 +31,24 @@ const WaterScreen = ({ route, navigation }) => {
   const [firstLiterTime, setFirstLiterTime] = useState(`${String(firstLiterHours).padStart(2, '0')}:${String(firstLiterMins).padStart(2, '0')}`);
 
   const screenHeight = Dimensions.get('window').height;
-
+  
   const increaseCounter = () => {
     if (counter < totalLiters && !buttonDisabled) {
       const newCounter = counter + 1;
       const fillValue = newCounter / totalLiters;
-
-      setCounter(newCounter);
-
+  
+      setCounter((prevCounter) => prevCounter + 1);
+  
       const timeToAdd = (newCounter + 1) * drinkingTimePerLiterMinutes;
-
+  
       const currentTime = startMinutes + timeToAdd;
       const currentHours = Math.floor(currentTime / 60);
       const currentMinutes = currentTime % 60;
-
+  
       const currentDrinkTime = `${String(currentHours).padStart(2, '0')}:${String(currentMinutes).padStart(2, '0')}`;
-
+  
       setFirstLiterTime(currentDrinkTime);
-
+  
       Animated.timing(fillAnimation, {
         toValue: fillValue,
         duration: 1000, // Adjust the duration as needed
@@ -56,66 +58,17 @@ const WaterScreen = ({ route, navigation }) => {
           setScreenColor('green');
           setShowAllDoneMessage(true);
           setButtonDisabled(true);
-          scheduleNotification('You have reached your daily water intake goal!');
         } else if (newCounter === Math.floor(totalLiters * 0.95)) {
           setShowLastOneMessage(true);
           setTimeout(() => setShowLastOneMessage(false), 3000); // Show the message for 3 seconds
-          scheduleNotification('Only a few sips left!');
         } else if (newCounter === Math.floor(totalLiters * 0.55)) {
           setShowHalfwayMessage(true);
           setTimeout(() => setShowHalfwayMessage(false), 3000); // Show the message for 3 seconds
-          scheduleNotification('You are halfway there!');
         }
       });
     }
   };
-
-  const scheduleNotification = async (message) => {
-    const timeToAdd = (counter + 1) * drinkingTimePerLiterMinutes;
-    const currentTime = startMinutes + timeToAdd;
-    const notificationTime = new Date();
-    notificationTime.setHours(Math.floor(currentTime / 60));
-    notificationTime.setMinutes(currentTime % 60); 
-    console.log()
-
-    const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-      finalStatus = status;
-    }
-
-    if (finalStatus !== 'granted') {
-      console.log('Permission for notifications not granted');
-      return;
-    }
-
-    const schedulingOptions = {
-      content: {
-        title: 'Waterloading',
-        body: message,
-        sound: 'default',
-        vibrate: true,
-      },
-      trigger: notificationTime,
-    };
-
-    Notifications.scheduleNotificationAsync(schedulingOptions);
-    console.log()
-  };
-
-console.log('totalLiters:', route.params.totalLiters);
-console.log('drinkingHoursInMinutes:', route.params.drinkingHoursInMinutes);
-console.log('startTime:', route.params.startTime);
-console.log('endTime:', route.params.endTime);
-console.log('totalHours:', totalHours);
-console.log('totalMinutes:', totalMinutes);
-console.log('drinkingTimePerLiterMinutes:', drinkingTimePerLiterMinutes);
-console.log('timePerLiterHours:', timePerLiterHours);
-console.log('timePerLiterMinutes:', timePerLiterMinutes);
-console.log('firstLiterHours:', firstLiterHours);
-console.log('firstLiterMins:', firstLiterMins);
-
+  
 
   const fillHeight = fillAnimation.interpolate({
     inputRange: [0, 1],
@@ -128,24 +81,32 @@ console.log('firstLiterMins:', firstLiterMins);
   };
 
   const calculateLitersLeft = () => {
-    const litersLeft = totalLiters - counter;
-    if (litersLeft >= 1) {
-      return litersLeft.toFixed(2) + ' L';
-    } else {
-      const millilitersLeft = (litersLeft * 1000).toFixed(0);
-      return Math.max(0, millilitersLeft) + 'ml';
-    }
-  };
-
-  const calculateLitersDrunk = () => {
-    if (counter < totalLiters) {
-      return counter.toFixed(2);
-    } else if (totalLiters !== undefined) {
-      return totalLiters.toFixed(2);
+    if (totalLiters !== undefined) {
+      const litersLeft = totalLiters - counter;
+      if (litersLeft >= 1) {
+        return litersLeft.toFixed(2) + ' L';
+      } else {
+        const millilitersLeft = (litersLeft * 1000).toFixed(0);
+        return Math.max(0, millilitersLeft) + 'ml';
+      }
     } else {
       return '0.00';
     }
   };
+  
+
+  const calculateLitersDrunk = () => {
+    if (totalLiters !== undefined) {
+      if (counter < totalLiters) {
+        return counter.toFixed(2);
+      } else {
+        return totalLiters.toFixed(2);
+      }
+    } else {
+      return '0.00';
+    }
+  };
+  
 
 
   useEffect(() => {
@@ -153,7 +114,20 @@ console.log('firstLiterMins:', firstLiterMins);
     if (counter + 1 >= totalLiters) {
       setFirstLiterTime(endTime);
     }
-  }, [counter, endTime, totalLiters]);
+  }, [counter, endTime, totalLiters, startTime]);
+  
+
+  //console.log('WaterScreen02 - totalLiters:', route.params.totalLiters);
+  //console.log('WaterScreen02 - drinkingHoursInMinutes:', route.params.drinkingHoursInMinutes);
+  //console.log('WaterScreen02 - startTime:', route.params.startTime);
+  //console.log('WaterScreen02 - endTime:', route.params.endTime);
+  //console.log('WaterScreen02 - totalHours:', route.params.totalHours);
+  //console.log('WaterScreen02 - totalMinutes:', route.params.totalMinutes);
+  //console.log('WaterScreen02 - drinkingTimePerLiterMinutes:', route.params.drinkingTimePerLiterMinutes);
+  //console.log('WaterScreen02 - timePerLiterHours:', route.params.timePerLiterHours);
+  //console.log('WaterScreen02 - timePerLiterMinutes:', route.params.timePerLiterMinutes);
+  //console.log('WaterScreen02 - firstLiterHours:', route.params.firstLiterHours);
+  //console.log('WaterScreen02 - firstLiterMins:', route.params.firstLiterMins);
 
   const handleNextDay = () => {
     if (route.params.day < 6) {
@@ -163,10 +137,9 @@ console.log('firstLiterMins:', firstLiterMins);
         drinkingHoursInMinutes: route.params.drinkingHoursInMinutes,
         startTime: route.params.startTime,
         endTime: route.params.endTime,
-      });
+      });      
     }
-  };
-
+  };  
 
   return (
     <View style={styles.container}>
@@ -194,13 +167,13 @@ console.log('firstLiterMins:', firstLiterMins);
       </View>
       <Text style={styles.title}>Waterloading</Text>
       <Text style={styles.text}>
-        Liters per day: {totalLiters ? totalLiters.toFixed(2) : 0}L
+        Liters per day: {totalLiters !== undefined ? totalLiters.toFixed(2) : 0}L
       </Text>
       <Text style={styles.text}>
         Overall time: {totalHours}hr{totalMinutes}
       </Text>
       <Text style={styles.text}>
-        Time per litre: {timePerLiterHours}hr{timePerLiterMinutes}
+      Time per litre: {timePerLiterHours < 1 ? `${timePerLiterMinutes} minutes` : `${timePerLiterHours}hr${timePerLiterMinutes}`}
       </Text>
       {timePerLiterHours < 1 ? (
         <View style={styles.buttonContainer}>

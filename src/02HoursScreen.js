@@ -48,12 +48,18 @@ const HoursScreen = ({ navigation, route }) => {
     if (drinkingTime < totalLiters * 60) {
       setErrorMessage('You need more time to continue!');
     } else {
+      console.log('Hours Screen - totalLiters:', totalLiters);
+      console.log('Hours Screen - DrinkingHoursInMinutes:', drinkingTime);
+      console.log('Hours Screen - startTime:', startTime);
+      console.log('Hours Screen - endTime:', endTime);
+
       navigation.navigate('DayScreen', {
+        day: 1,
         totalLiters: totalLiters,
         drinkingHoursInMinutes: drinkingTime,
         startTime: startTime,
         endTime: endTime,
-      });
+      });      
     }
   };
   
