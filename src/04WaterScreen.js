@@ -15,6 +15,7 @@ const WaterScreen = ({ route, navigation }) => {
   const [showLastOneMessage, setShowLastOneMessage] = useState(false);
   const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [scheduledNotifications, setScheduledNotifications] = useState([]);
 
   const totalHours = Math.floor((drinkingHoursInMinutes ?? 0) / 60);
   const totalMinutes = (drinkingHoursInMinutes ?? 0) % 60;
@@ -31,24 +32,24 @@ const WaterScreen = ({ route, navigation }) => {
   const [firstLiterTime, setFirstLiterTime] = useState(`${String(firstLiterHours).padStart(2, '0')}:${String(firstLiterMins).padStart(2, '0')}`);
 
   const screenHeight = Dimensions.get('window').height;
-  
+
   const increaseCounter = () => {
     if (counter < totalLiters && !buttonDisabled) {
       const newCounter = counter + 1;
       const fillValue = newCounter / totalLiters;
-  
+
       setCounter((prevCounter) => prevCounter + 1);
-  
+
       const timeToAdd = (newCounter + 1) * drinkingTimePerLiterMinutes;
-  
+
       const currentTime = startMinutes + timeToAdd;
       const currentHours = Math.floor(currentTime / 60);
       const currentMinutes = currentTime % 60;
-  
+
       const currentDrinkTime = `${String(currentHours).padStart(2, '0')}:${String(currentMinutes).padStart(2, '0')}`;
-  
+
       setFirstLiterTime(currentDrinkTime);
-  
+
       Animated.timing(fillAnimation, {
         toValue: fillValue,
         duration: 1000, // Adjust the duration as needed
@@ -68,7 +69,6 @@ const WaterScreen = ({ route, navigation }) => {
       });
     }
   };
-  
 
   const fillHeight = fillAnimation.interpolate({
     inputRange: [0, 1],
@@ -93,7 +93,6 @@ const WaterScreen = ({ route, navigation }) => {
       return '0.00';
     }
   };
-  
 
   const calculateLitersDrunk = () => {
     if (totalLiters !== undefined) {
@@ -106,8 +105,6 @@ const WaterScreen = ({ route, navigation }) => {
       return '0.00';
     }
   };
-  
-
 
   useEffect(() => {
     console.log('counter:', counter);
@@ -115,19 +112,50 @@ const WaterScreen = ({ route, navigation }) => {
       setFirstLiterTime(endTime);
     }
   }, [counter, endTime, totalLiters, startTime]);
-  
 
-  //console.log('WaterScreen02 - totalLiters:', route.params.totalLiters);
-  //console.log('WaterScreen02 - drinkingHoursInMinutes:', route.params.drinkingHoursInMinutes);
-  //console.log('WaterScreen02 - startTime:', route.params.startTime);
-  //console.log('WaterScreen02 - endTime:', route.params.endTime);
-  //console.log('WaterScreen02 - totalHours:', route.params.totalHours);
-  //console.log('WaterScreen02 - totalMinutes:', route.params.totalMinutes);
-  //console.log('WaterScreen02 - drinkingTimePerLiterMinutes:', route.params.drinkingTimePerLiterMinutes);
-  //console.log('WaterScreen02 - timePerLiterHours:', route.params.timePerLiterHours);
-  //console.log('WaterScreen02 - timePerLiterMinutes:', route.params.timePerLiterMinutes);
-  //console.log('WaterScreen02 - firstLiterHours:', route.params.firstLiterHours);
-  //console.log('WaterScreen02 - firstLiterMins:', route.params.firstLiterMins);
+  useEffect(() => {
+    const checkNotification = () => {
+      const now = new Date();
+      const finishTimeParts = firstLiterTime.split(':');
+      const finishTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), finishTimeParts[0], finishTimeParts[1]);
+      if (now >= finishTime) {
+        console.log("It's time to finish your liter and log it");
+        // Trigger your notification logic here
+      }
+    };
+
+    const interval = setInterval(checkNotification, 1000 * 60); // Check every minute
+
+    return () => clearInterval(interval);
+  }, [firstLiterTime]);
+
+  useEffect(() => {
+    const notifications = [];
+    const startTimeParts = startTime.split(':');
+    const startHour = parseInt(startTimeParts[0]);
+    const startMinute = parseInt(startTimeParts[1]);
+    const drinkingTimePerLiterHours = Math.floor(drinkingTimePerLiterMinutes / 60);
+    const drinkingTimePerLiterMinutesMod = drinkingTimePerLiterMinutes % 60;
+
+    let currentTime = new Date();
+    currentTime.setHours(startHour);
+    currentTime.setMinutes(startMinute);
+
+    for (let i = 0; i < totalLiters; i++) {
+      const notificationTime = new Date(currentTime);
+      notificationTime.setHours(notificationTime.getHours() + drinkingTimePerLiterHours);
+      notificationTime.setMinutes(notificationTime.getMinutes() + drinkingTimePerLiterMinutesMod);
+
+      notifications.push(notificationTime);
+      currentTime = new Date(notificationTime);
+    }
+
+    setScheduledNotifications(notifications);
+  }, [totalLiters, startTime, drinkingTimePerLiterMinutes]);
+
+  useEffect(() => {
+    console.log('Scheduled Notifications:', scheduledNotifications);
+  }, [scheduledNotifications]);
 
   const handleNextDay = () => {
     if (route.params.day < 6) {
@@ -137,9 +165,9 @@ const WaterScreen = ({ route, navigation }) => {
         drinkingHoursInMinutes: route.params.drinkingHoursInMinutes,
         startTime: route.params.startTime,
         endTime: route.params.endTime,
-      });      
+      });
     }
-  };  
+  };
 
   return (
     <View style={styles.container}>
@@ -173,7 +201,7 @@ const WaterScreen = ({ route, navigation }) => {
         Overall time: {totalHours}hr{totalMinutes}
       </Text>
       <Text style={styles.text}>
-      Time per litre: {timePerLiterHours < 1 ? `${timePerLiterMinutes} minutes` : `${timePerLiterHours}hr${timePerLiterMinutes}`}
+        Time per litre: {timePerLiterHours < 1 ? `${timePerLiterMinutes} minutes` : `${timePerLiterHours}hr${timePerLiterMinutes}`}
       </Text>
       {timePerLiterHours < 1 ? (
         <View style={styles.buttonContainer}>
