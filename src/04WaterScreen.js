@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Button, Animated, Dimensions } from 'react-native';
+import * as Notifications from 'expo-notifications';
 
 const WaterScreen = ({ route, navigation }) => {
   const { totalLiters, drinkingHoursInMinutes, startTime, endTime } = route.params || {};
@@ -16,6 +17,7 @@ const WaterScreen = ({ route, navigation }) => {
   const [showAllDoneMessage, setShowAllDoneMessage] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [scheduledNotifications, setScheduledNotifications] = useState([]);
+  const [isBehindSchedule, setIsBehindSchedule] = useState(false);
 
   const totalHours = Math.floor((drinkingHoursInMinutes ?? 0) / 60);
   const totalMinutes = (drinkingHoursInMinutes ?? 0) % 60;
@@ -118,10 +120,7 @@ const WaterScreen = ({ route, navigation }) => {
       const now = new Date();
       const finishTimeParts = firstLiterTime.split(':');
       const finishTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), finishTimeParts[0], finishTimeParts[1]);
-      if (now >= finishTime) {
-        console.log("It's time to finish your liter and log it");
-        // Trigger your notification logic here
-      }
+      setIsBehindSchedule(now > finishTime);
     };
 
     const interval = setInterval(checkNotification, 1000 * 60); // Check every minute
@@ -175,18 +174,21 @@ const WaterScreen = ({ route, navigation }) => {
         <Animated.View style={[styles.fill, { height: fillHeight }]} />
       </View>
       <View style={styles.topContainer}>
+        {isBehindSchedule && (
+          <View style={[styles.messageContainer, { backgroundColor: 'red' }]}>
+            <Text style={styles.messageText}>You're behind schedule</Text>
+          </View>
+        )}
         {showHalfwayMessage && (
           <View style={styles.messageContainer}>
             <Text style={styles.messageText}>Halfway there!</Text>
           </View>
         )}
-
         {showLastOneMessage && (
           <View style={styles.messageContainer}>
             <Text style={styles.messageText}>Last few sips!</Text>
           </View>
         )}
-
         {showAllDoneMessage && (
           <View style={styles.messageContainer}>
             <Text style={styles.messageText}>You're finished. Well done!</Text>
